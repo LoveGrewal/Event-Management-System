@@ -1,5 +1,6 @@
 package concordia.dems.model;
 
+import concordia.dems.model.enumeration.EventBatch;
 import concordia.dems.model.enumeration.EventType;
 
 import java.util.List;
@@ -16,10 +17,12 @@ public class Event {
     private EventType eventType;
     private int bookingCapacity, remainingCapacity;
     private List<String> customers;
+    private EventBatch eventBatch;
 
-    public Event(String eventId, EventType eventType, int bookingCapacity) {
+    public Event(String eventId, EventType eventType, EventBatch eventBatch, int bookingCapacity) {
         this.eventId = eventId;
         this.eventType = eventType;
+        this.eventBatch = eventBatch;
         this.bookingCapacity = bookingCapacity;
     }
 
@@ -61,5 +64,13 @@ public class Event {
 
     public void setCustomers(List<String> customers) {
         this.customers = customers;
+    }
+
+    public EventBatch getEventBatch() {
+        return eventBatch;
+    }
+
+    public void setEventBatch(EventBatch eventBatch) {
+        this.eventBatch = eventBatch;
     }
 }
