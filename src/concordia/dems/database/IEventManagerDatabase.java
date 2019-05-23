@@ -16,4 +16,5 @@ public interface IEventManagerDatabase {
     Boolean bookEvent (String customerID,String eventID,EventType eventType);
     List<Event> getBookingSchedule (String customerID);
     Boolean cancelEvent (String customerID,String eventID);
+    int getRemainingCapacityOfEvent(String eventID);
 }
