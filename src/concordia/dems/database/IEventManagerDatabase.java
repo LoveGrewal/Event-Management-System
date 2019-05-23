@@ -1,6 +1,7 @@
 package concordia.dems.database;
 
 import concordia.dems.model.Event;
+import concordia.dems.model.enumeration.EventType;
 
 import java.util.List;
 
@@ -9,10 +10,10 @@ import java.util.List;
  * @version 1.0.0
  */
 public interface IEventManagerDatabase {
-    Boolean addEvent (String eventID, String eventType, String bookingCapacity);
-    Boolean removeEvent (String eventID, String eventType);
-    List<Event> listEventAvailability (String eventType);
-    Boolean bookEvent (String customerID,String eventID,String eventType);
+    Boolean addEvent (Event event);
+    Boolean removeEvent (Event event);
+    List<Event> listEventAvailability (EventType eventType);
+    Boolean bookEvent (String customerID,String eventID,EventType eventType);
     List<Event> getBookingSchedule (String customerID);
     Boolean cancelEvent (String customerID,String eventID);
 }
