@@ -20,11 +20,18 @@ public class Event {
     private List<String> customers;
     private EventBatch eventBatch;
 
+    // This constructor can be use for adding an event
     public Event(String eventId, EventType eventType, EventBatch eventBatch, int bookingCapacity) {
         this.eventId = eventId;
         this.eventType = eventType;
         this.eventBatch = eventBatch;
         this.bookingCapacity = bookingCapacity;
+    }
+
+    // This constructor can be use for removing an event
+    public Event(String eventId, EventType eventType) {
+        this.eventId = eventId;
+        this.eventType = eventType;
     }
 
     public String getEventId() {
@@ -74,9 +81,9 @@ public class Event {
     public void removeCustomer(String customerID) {
         String customer;
         Iterator it = this.customers.iterator();
-        while (it.hasNext()){
-            customer = (String)it.next();
-            if (customer.equals(customerID)){
+        while (it.hasNext()) {
+            customer = (String) it.next();
+            if (customer.equals(customerID)) {
                 it.remove();
             }
         }
@@ -85,9 +92,9 @@ public class Event {
     public boolean findIfCustomerPresent(String customerID) {
         String customer;
         Iterator it = this.customers.iterator();
-        while (it.hasNext()){
-            customer = (String)it.next();
-            if (customer.equals(customerID)){
+        while (it.hasNext()) {
+            customer = (String) it.next();
+            if (customer.equals(customerID)) {
                 return true;
             }
         }
@@ -102,7 +109,7 @@ public class Event {
         this.eventBatch = eventBatch;
     }
 
-    public Event copyEvent(Event event){
+    public Event copyEvent(Event event) {
         return new Event(event.getEventId(), event.getEventType(), event.getEventBatch(), event.getBookingCapacity());
     }
 }
