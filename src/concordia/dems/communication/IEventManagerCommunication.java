@@ -11,5 +11,5 @@ import java.rmi.RemoteException;
  */
 public interface IEventManagerCommunication extends Remote {
 
-    void performOperation(String userRequest) throws RemoteException;
+    String performOperation(String userRequest) throws RemoteException;
 }

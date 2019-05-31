@@ -20,6 +20,9 @@ public class Event {
     private List<String> customers;
     private EventBatch eventBatch;
 
+    public Event() {
+    }
+
     // This constructor can be use for adding an event
     public Event(String eventId, EventType eventType, EventBatch eventBatch, int bookingCapacity) {
         this.eventId = eventId;
