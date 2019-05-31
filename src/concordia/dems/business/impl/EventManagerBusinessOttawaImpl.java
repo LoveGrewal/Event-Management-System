@@ -25,12 +25,6 @@ public class EventManagerBusinessOttawaImpl implements IEventManagerBusiness {
 
     @Override
     public Boolean addEvent(String addEventInfo) {
-        // dummy:city,timslot,eventdate : TORE100519,Enumeration Type,bookingcapacity
-        String[] eventInformation = "OTWE100519,Conference,20".split(",");
-        // At index 3 of eventId, the letter represents event batch
-        EventBatch eventBatch = Helper.getEventBatchEnumObject(eventInformation[EVENT_ID_INDEX].charAt(EVENT_TIME_SLOT_INDEX));
-        EventType eventType = Helper.getEventTypeEnumObject(eventInformation[EVENT_TYPE_INDEX]);
-        event = new Event(eventInformation[EVENT_ID_INDEX], eventType, eventBatch, Integer.parseInt(eventInformation[EVENT_CAPACITY_INDEX]));
         return null;
     }
 

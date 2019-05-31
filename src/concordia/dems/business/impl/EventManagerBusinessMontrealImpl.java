@@ -4,7 +4,6 @@ import concordia.dems.business.IEventManagerBusiness;
 import concordia.dems.database.IEventManagerDatabase;
 import concordia.dems.helpers.Helper;
 import concordia.dems.model.Event;
-import concordia.dems.model.enumeration.EventBatch;
 import concordia.dems.model.enumeration.EventType;
 
 import java.util.List;
@@ -14,10 +13,6 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
     private static IEventManagerDatabase iEventManagerDatabase;
 
     private Event event;
-    private final int EVENT_ID_INDEX = 0;
-    private final int EVENT_TYPE_INDEX = 1;
-    private final int EVENT_CAPACITY_INDEX = 2;
-    private final int EVENT_TIME_SLOT_INDEX = 3;
 
     /*
        Manager Related Functions
@@ -25,21 +20,29 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
 
     @Override
     public Boolean addEvent(String addEventInfo) {
-        String[] eventInformation = "MTLA100519,Conference,20".split(",");
-        // At index 3 of eventId, the letter represents event batch
-        EventBatch eventBatch = Helper.getEventBatchEnumObject(eventInformation[EVENT_ID_INDEX].charAt(EVENT_TIME_SLOT_INDEX));
-        EventType eventType = Helper.getEventTypeEnumObject(eventInformation[EVENT_TYPE_INDEX]);
-        event = new Event(eventInformation[EVENT_ID_INDEX], eventType, eventBatch, Integer.parseInt(eventInformation[EVENT_CAPACITY_INDEX]));
+        String[] unWrappingRequest = addEventInfo.split(",");
+        //0 = EventID , 1 = Event Type , 2 = Event Batch , 3 = Booking Capacity
+        event = new Event(unWrappingRequest[0],
+                Helper.getEventTypeEnumObject(unWrappingRequest[1]),
+                Helper.getEventBatchEnumObject(unWrappingRequest[2]),
+                Integer.parseInt(unWrappingRequest[3]));
+//        iEventManagerDatabase.addEvent(event);
+        System.out.println("You are going to register new event and call is going to montreal udp server");
         return null;
     }
 
     @Override
     public Boolean removeEvent(String removeEventInfo) {
+        // Tell Love to change the removeEvent Parameter
+//        iEventManagerDatabase.removeEvent(removeEventInfo);
+        System.err.print(removeEventInfo.toUpperCase());
         return null;
     }
 
     @Override
     public List<Event> listEventAvailability(String eventType) {
+        EventType eventTypeObj = Helper.getEventTypeEnumObject(eventType);
+        iEventManagerDatabase.listEventAvailability(eventTypeObj);
         return null;
     }
 
@@ -49,6 +52,11 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
 
     @Override
     public Boolean bookEvent(String eventBookingInfo) {
+        System.err.print(eventBookingInfo);
+//        String[] unWrappingRequest = eventBookingInfo.split(",");
+//        EventType eventType = Helper.getEventTypeEnumObject(unWrappingRequest[EVENT_TYPE_INDEX]);
+//        event = new Event(unWrappingRequest[EVENT_ID_INDEX], eventType);
+//        event.setCustomers(Collections.singletonList(unWrappingRequest[CUSTOMER_ID_INDEX]));
         return null;
     }
 

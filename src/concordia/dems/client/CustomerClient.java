@@ -1,12 +1,15 @@
 package concordia.dems.client;
 
+import concordia.dems.communication.IEventManagerCommunication;
 import concordia.dems.helpers.EventOperation;
 import concordia.dems.helpers.Helper;
 import concordia.dems.helpers.ManagerAndClientInfo;
 import concordia.dems.model.Event;
+import concordia.dems.model.RMIServerFactory;
 import concordia.dems.model.enumeration.EventType;
 import concordia.dems.model.enumeration.Servers;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -14,34 +17,58 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Mayank Jariwala
+ * @version 1.0.0
  */
 public class CustomerClient {
 
-
     public static void main(String[] args) {
         CustomerClient customerClient = new CustomerClient();
+        System.out.println("Please write logout to close the client server");
         customerClient.execute();
     }
 
     private void execute() {
-        String requestBody = "";
-        listCustomerIds();
-        System.out.print("Select your id : ");
-        Scanner scanner = new Scanner(System.in);
-        int customerID = scanner.nextInt();
-        Servers server = Helper.getServerFromId(ManagerAndClientInfo.clientsId.get(customerID - 1));
-        listCustomerOperations();
-        System.out.print("Select operation id : ");
-        int operationID = scanner.nextInt();
-        String operationName = ManagerAndClientInfo.clientOperations.get(operationID - 1);
-        if (operationName.equals(EventOperation.BOOK_EVENT)) {
-            AtomicInteger idCounter = new AtomicInteger(1);
-            List<Event> eventsList = createEventsAndList();
-            eventsList.forEach(event -> {
-                System.out.println(idCounter.getAndIncrement() + " " + event);
-            });
+        Scanner readInput = new Scanner(System.in);
+        String customerId;
+        System.out.print("Enter your id : ");
+        customerId = readInput.nextLine();
+        while (!customerId.equals("logout")) {
+            try {
+                Servers server = Helper.getServerFromId(customerId);
+                IEventManagerCommunication communication = RMIServerFactory.getInstance(server);
+                String requestBody = "";
+                listCustomerOperations();
+                System.out.print("Select operation id : ");
+                int operationID = readInput.nextInt();
+                String operationName = ManagerAndClientInfo.clientOperations.get(operationID - 1);
+                Event chosenEvent = null;
+                switch (operationName) {
+                    case EventOperation.BOOK_EVENT:
+                        AtomicInteger idCounter = new AtomicInteger(1);
+                        List<Event> eventsList = createEventsAndList();
+                        eventsList.forEach(event -> System.out.println(idCounter.getAndIncrement() + " " + event.getEventId() + " " + event.getEventType()));
+                        System.out.print("Select event: ");
+                        int eventID = readInput.nextInt();
+                        chosenEvent = eventsList.get(eventID - 1);
+                        requestBody += EventOperation.BOOK_EVENT;
+                        break;
+                    case EventOperation.CANCEL_EVENT:
+
+                        break;
+                    case EventOperation.GET_BOOKING_SCHEDULE:
+                        break;
+                }
+                requestBody += "," + customerId + "," + (chosenEvent != null ? chosenEvent.getEventId() : null) + "," + (chosenEvent != null ? chosenEvent.getEventType() : null);
+                String response = communication.performOperation(requestBody);
+                System.out.println(response);
+                readInput.nextLine();
+                System.out.print("Enter your id : ");
+                customerId = readInput.nextLine();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
-        requestBody += operationName + "," + customerID;
+
     }
 
     /**
