@@ -1,5 +1,7 @@
 package concordia.dems.helpers;
 
+import concordia.dems.model.Event;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +29,9 @@ public class ManagerAndClientInfo {
     public static final List<String> managerOperations = Arrays.asList(
             EventOperation.ADD_EVENT,
             EventOperation.REMOVE_EVENT,
-            EventOperation.LIST_AVAILABILITY
+            EventOperation.LIST_AVAILABILITY,
+            EventOperation.BOOK_EVENT,
+            EventOperation.GET_BOOKING_SCHEDULE,
+            EventOperation.CANCEL_EVENT
     );
 }

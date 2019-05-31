@@ -30,10 +30,10 @@ public class Helper {
     }
 
     /**
-     * Returns Enumeration Type of EventType by receiving string as parameter
+     * Returns Enumeration Type of String by receiving string as parameter
      *
      * @param eventType: Type of Event
-     * @return EventType
+     * @return String
      */
     public static EventType getEventTypeEnumObject(String eventType) {
         EventType type = null;
@@ -45,7 +45,7 @@ public class Helper {
             case "SEMINAR":
                 type = EventType.SEMINAR;
                 break;
-            case "TRADES SHOW":
+            case "TRADESHOW":
                 type = EventType.TRADESHOW;
                 break;
             default:
@@ -54,22 +54,23 @@ public class Helper {
         return type;
     }
 
+
     /**
      * Returns Enumeration Type of EventBatch by receiving char as parameter
      *
-     * @param eventBatchLetter: Batch/Time Slot of Event
+     * @param eventBatch: Batch/Time Slot of Event
      * @return EventBatch
      */
-    public static EventBatch getEventBatchEnumObject(char eventBatchLetter) {
+    public static EventBatch getEventBatchEnumObject(String eventBatch) {
         EventBatch batch = null;
-        switch (eventBatchLetter) {
-            case 'A':
+        switch (eventBatch) {
+            case "AFTERNOON":
                 batch = EventBatch.AFTERNOON;
                 break;
-            case 'E':
+            case "EVENING":
                 batch = EventBatch.EVENING;
                 break;
-            case 'M':
+            case "MORNING":
                 batch = EventBatch.MORNING;
                 break;
             default:

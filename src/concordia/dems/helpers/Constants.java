@@ -1,5 +1,9 @@
 package concordia.dems.helpers;
 
+/**
+ * @author Mayank Jariwala
+ * @version 1.0.0
+ */
 public class Constants {
 
     public static int MTL_TOR_PORT = 2020;
@@ -8,4 +12,13 @@ public class Constants {
     public static int TOR_OTW_PORT = 2023;
     public static int OTW_TOR_PORT = 2024;
     public static int OTW_MTL_PORT = 2025;
+
+    public static int MTL_RMI_PORT = 8083;
+    public static int OTW_RMI_PORT = 8084;
+    public static int TOR_RMI_PORT = 8085;
+
+    // Server url name
+    public static String MTL_RMI_URL = "rmi://127.0.0.1:" + MTL_RMI_PORT + "/";
+    public static String TOR_RMI_URL = "rmi://127.0.0.1:" + TOR_RMI_PORT + "/";
+    public static String OTW_RMI_URL = "rmi://127.0.0.1:" + OTW_RMI_PORT + "/";
 }
