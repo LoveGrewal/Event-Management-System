@@ -1,15 +1,18 @@
 package concordia.dems.communication.impl;
 
+import concordia.dems.business.IEventManagerBusiness;
 import concordia.dems.business.impl.EventManagerBusinessTorontoImpl;
 import concordia.dems.communication.IEventManagerCommunication;
 import concordia.dems.helpers.Constants;
 import concordia.dems.helpers.EventOperation;
+import concordia.dems.model.Event;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
 
 public class EventManagerCommunicationToronto extends UnicastRemoteObject implements IEventManagerCommunication {
 
@@ -17,7 +20,7 @@ public class EventManagerCommunicationToronto extends UnicastRemoteObject implem
     // Event Information or Client Information
     private final int INFORMATION_INDEX = 1;
 
-    private EventManagerBusinessTorontoImpl eventManagerBusinessToronto;
+    private IEventManagerBusiness eventManagerBusinessToronto;
 
 
     protected EventManagerCommunicationToronto() throws RemoteException {
@@ -46,27 +49,36 @@ public class EventManagerCommunicationToronto extends UnicastRemoteObject implem
         String[] unWrappingRequest = userRequest.split(",");
         switch (unWrappingRequest[OPERATION_INDEX]) {
             case EventOperation.BOOK_EVENT:
-                eventManagerBusinessToronto.addEvent(unWrappingRequest[INFORMATION_INDEX]);
-                System.err.print("You are going to book an event through toronto server");
-                break;
+                boolean status = eventManagerBusinessToronto.addEvent(unWrappingRequest[INFORMATION_INDEX]);
+                if (status)
+                    return "You are registered to the requested event";
+                else
+                    return "No such event ID found";
             case EventOperation.CANCEL_EVENT:
-                System.out.println("You are going to cancel an event");
+                eventManagerBusinessToronto.cancelEvent(unWrappingRequest[INFORMATION_INDEX]);
                 break;
             case EventOperation.GET_BOOKING_SCHEDULE:
-                System.out.println("You are going to get booking schedule");
+                eventManagerBusinessToronto.getBookingSchedule(unWrappingRequest[INFORMATION_INDEX]);
                 break;
             case EventOperation.ADD_EVENT:
-                eventManagerBusinessToronto.addEvent(unWrappingRequest[INFORMATION_INDEX]);
-                System.out.println("You are going to add an event through montreal server");
-                break;
+                boolean saveStatus = eventManagerBusinessToronto.addEvent(unWrappingRequest[INFORMATION_INDEX]);
+                if (saveStatus)
+                    return "Your event is successfully added/updated";
+                else
+                    return "Your event fail to added";
             case EventOperation.REMOVE_EVENT:
-                eventManagerBusinessToronto.removeEvent(unWrappingRequest[INFORMATION_INDEX]);
-                System.out.println("You are going to remove an event");
-                break;
+                boolean removeEventStatus = eventManagerBusinessToronto.removeEvent(unWrappingRequest[INFORMATION_INDEX]);
+                if (removeEventStatus)
+                    return "Event was removed successfully";
+                else
+                    return "Event was not removed successfully";
             case EventOperation.LIST_AVAILABILITY:
-                eventManagerBusinessToronto.listEventAvailability(unWrappingRequest[INFORMATION_INDEX]);
-                System.out.println("You are going get an event availability");
-                break;
+                List<Event> eventList = eventManagerBusinessToronto.listEventAvailability(unWrappingRequest[INFORMATION_INDEX]);
+                StringBuilder eventAvailabilityInformation = new StringBuilder();
+                for (Event e : eventList) {
+                    eventAvailabilityInformation.append(e.getEventId()).append(" ").append(e.getEventType()).append(" ").append(e.getBookingCapacity()).append(" ").append(e.getRemainingCapacity()).append("\n");
+                }
+                return eventAvailabilityInformation.toString();
             default:
                 break;
         }

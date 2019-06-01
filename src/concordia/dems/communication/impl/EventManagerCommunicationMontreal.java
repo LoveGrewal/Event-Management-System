@@ -1,19 +1,22 @@
 package concordia.dems.communication.impl;
 
+import concordia.dems.business.IEventManagerBusiness;
 import concordia.dems.business.impl.EventManagerBusinessMontrealImpl;
 import concordia.dems.communication.IEventManagerCommunication;
 import concordia.dems.helpers.Constants;
 import concordia.dems.helpers.EventOperation;
+import concordia.dems.model.Event;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
 
 public class EventManagerCommunicationMontreal extends UnicastRemoteObject implements IEventManagerCommunication {
 
-    private EventManagerBusinessMontrealImpl eventManagerBusinessMontreal;
+    private IEventManagerBusiness eventManagerBusinessMontreal;
 
     private final int OPERATION_INDEX = 0;
     // Event Information or Client Information
@@ -43,24 +46,38 @@ public class EventManagerCommunicationMontreal extends UnicastRemoteObject imple
     @Override
     public String performOperation(String userRequest) {
         String[] unWrappingRequest = userRequest.split(",", 2);
-        System.err.print(unWrappingRequest[OPERATION_INDEX]);
         switch (unWrappingRequest[OPERATION_INDEX]) {
             case EventOperation.BOOK_EVENT:
-                eventManagerBusinessMontreal.bookEvent(unWrappingRequest[INFORMATION_INDEX]);
-                break;
+                boolean status = eventManagerBusinessMontreal.bookEvent(unWrappingRequest[INFORMATION_INDEX]);
+                if (status)
+                    return "You are registered to the requested event";
+                else
+                    return "No such event ID found";
             case EventOperation.CANCEL_EVENT:
+                eventManagerBusinessMontreal.cancelEvent(unWrappingRequest[INFORMATION_INDEX]);
                 break;
             case EventOperation.GET_BOOKING_SCHEDULE:
+                eventManagerBusinessMontreal.getBookingSchedule(unWrappingRequest[INFORMATION_INDEX]);
                 break;
             case EventOperation.ADD_EVENT:
-                eventManagerBusinessMontreal.addEvent(unWrappingRequest[INFORMATION_INDEX]);
-                break;
+                boolean saveStatus = eventManagerBusinessMontreal.addEvent(unWrappingRequest[INFORMATION_INDEX]);
+                if (saveStatus)
+                    return "Your event is successfully added/updated";
+                else
+                    return "Your event fail to added";
             case EventOperation.REMOVE_EVENT:
-                eventManagerBusinessMontreal.removeEvent(unWrappingRequest[INFORMATION_INDEX]);
-                break;
+                boolean removeEventStatus = eventManagerBusinessMontreal.removeEvent(unWrappingRequest[INFORMATION_INDEX]);
+                if (removeEventStatus)
+                    return "Event was removed successfully";
+                else
+                    return "Event was not removed successfully";
             case EventOperation.LIST_AVAILABILITY:
-                eventManagerBusinessMontreal.listEventAvailability(unWrappingRequest[INFORMATION_INDEX]);
-                break;
+                List<Event> eventList = eventManagerBusinessMontreal.listEventAvailability(unWrappingRequest[INFORMATION_INDEX]);
+                StringBuilder eventAvailabilityInformation = new StringBuilder();
+                for (Event e : eventList) {
+                    eventAvailabilityInformation.append(e.getEventId()).append(" ").append(e.getEventType()).append(" ").append(e.getBookingCapacity()).append(" ").append(e.getRemainingCapacity()).append("\n");
+                }
+                return eventAvailabilityInformation.toString();
             default:
                 break;
         }
