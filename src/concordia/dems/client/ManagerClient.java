@@ -4,13 +4,10 @@ import concordia.dems.communication.IEventManagerCommunication;
 import concordia.dems.helpers.EventOperation;
 import concordia.dems.helpers.Helper;
 import concordia.dems.helpers.ManagerAndClientInfo;
-import concordia.dems.model.Event;
 import concordia.dems.model.RMIServerFactory;
-import concordia.dems.model.enumeration.EventBatch;
 import concordia.dems.model.enumeration.EventType;
 import concordia.dems.model.enumeration.Servers;
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Scanner;
