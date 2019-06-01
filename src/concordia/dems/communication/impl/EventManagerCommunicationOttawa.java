@@ -14,6 +14,10 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
+/**
+ * @author MayankJariwala
+ * @version 1.0.0
+ */
 public class EventManagerCommunicationOttawa extends UnicastRemoteObject implements IEventManagerCommunication {
 
     private final int OPERATION_INDEX = 0;
@@ -48,7 +52,7 @@ public class EventManagerCommunicationOttawa extends UnicastRemoteObject impleme
         String[] unWrappingRequest = userRequest.split(",", 2);
         switch (unWrappingRequest[OPERATION_INDEX]) {
             case EventOperation.BOOK_EVENT:
-                boolean status = eventManagerBusinessOttawa.addEvent(unWrappingRequest[INFORMATION_INDEX]);
+                boolean status = eventManagerBusinessOttawa.bookEvent(unWrappingRequest[INFORMATION_INDEX]);
                 if (status)
                     return "You are registered to the requested event";
                 else

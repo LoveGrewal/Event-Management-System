@@ -46,10 +46,10 @@ public class EventManagerCommunicationToronto extends UnicastRemoteObject implem
      */
     @Override
     public String performOperation(String userRequest) {
-        String[] unWrappingRequest = userRequest.split(",");
+        String[] unWrappingRequest = userRequest.split(",",2);
         switch (unWrappingRequest[OPERATION_INDEX]) {
             case EventOperation.BOOK_EVENT:
-                boolean status = eventManagerBusinessToronto.addEvent(unWrappingRequest[INFORMATION_INDEX]);
+                boolean status = eventManagerBusinessToronto.bookEvent(unWrappingRequest[INFORMATION_INDEX]);
                 if (status)
                     return "You are registered to the requested event";
                 else
