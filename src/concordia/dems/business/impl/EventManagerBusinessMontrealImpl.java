@@ -2,18 +2,21 @@ package concordia.dems.business.impl;
 
 import concordia.dems.business.IEventManagerBusiness;
 import concordia.dems.database.IEventManagerDatabase;
+import concordia.dems.database.impl.EventManagerDatabaseMontrealImpl;
 import concordia.dems.helpers.Helper;
 import concordia.dems.model.Event;
 import concordia.dems.model.enumeration.EventType;
 
+import java.util.Collections;
 import java.util.List;
 
 public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
 
     private static IEventManagerDatabase iEventManagerDatabase;
 
-    private Event event;
-
+    public EventManagerBusinessMontrealImpl() {
+        iEventManagerDatabase = new EventManagerDatabaseMontrealImpl();
+    }
     /*
        Manager Related Functions
     */
@@ -22,28 +25,24 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
     public Boolean addEvent(String addEventInfo) {
         String[] unWrappingRequest = addEventInfo.split(",");
         //0 = EventID , 1 = Event Type , 2 = Event Batch , 3 = Booking Capacity
-        event = new Event(unWrappingRequest[0],
+        Event event = new Event(unWrappingRequest[0],
                 Helper.getEventTypeEnumObject(unWrappingRequest[1]),
                 Helper.getEventBatchEnumObject(unWrappingRequest[2]),
                 Integer.parseInt(unWrappingRequest[3]));
-//        iEventManagerDatabase.addEvent(event);
-        System.out.println("You are going to register new event and call is going to montreal udp server");
-        return null;
+        return iEventManagerDatabase.addEvent(event);
     }
 
     @Override
     public Boolean removeEvent(String removeEventInfo) {
-        // Tell Love to change the removeEvent Parameter
-//        iEventManagerDatabase.removeEvent(removeEventInfo);
-        System.err.print(removeEventInfo.toUpperCase());
-        return null;
+        String[] unWrappingRequest = removeEventInfo.split(",");
+        Event e = new Event(unWrappingRequest[0], Helper.getEventTypeEnumObject(unWrappingRequest[1]));
+        return iEventManagerDatabase.removeEvent(e);
     }
 
     @Override
     public List<Event> listEventAvailability(String eventType) {
         EventType eventTypeObj = Helper.getEventTypeEnumObject(eventType);
-        iEventManagerDatabase.listEventAvailability(eventTypeObj);
-        return null;
+        return iEventManagerDatabase.listEventAvailability(eventTypeObj);
     }
 
     /*
@@ -52,16 +51,16 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
 
     @Override
     public Boolean bookEvent(String eventBookingInfo) {
-        System.err.print(eventBookingInfo);
-//        String[] unWrappingRequest = eventBookingInfo.split(",");
-//        EventType eventType = Helper.getEventTypeEnumObject(unWrappingRequest[EVENT_TYPE_INDEX]);
-//        event = new Event(unWrappingRequest[EVENT_ID_INDEX], eventType);
-//        event.setCustomers(Collections.singletonList(unWrappingRequest[CUSTOMER_ID_INDEX]));
-        return null;
+        String[] unWrappingRequest = eventBookingInfo.split(",");
+        String customerID = unWrappingRequest[0];
+        String eventID = unWrappingRequest[1];
+        EventType eventType = Helper.getEventTypeEnumObject(unWrappingRequest[2]);
+        return iEventManagerDatabase.bookEvent(customerID, eventID, eventType);
     }
 
     @Override
     public List<Event> getBookingSchedule(String customerID) {
+        System.err.println("Booking Schedule Info : " + customerID);
         return null;
     }
 

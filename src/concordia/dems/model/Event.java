@@ -3,6 +3,7 @@ package concordia.dems.model;
 import concordia.dems.model.enumeration.EventBatch;
 import concordia.dems.model.enumeration.EventType;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class Event {
     private String eventId;
     private EventType eventType;
     private int bookingCapacity, remainingCapacity;
-    private List<String> customers;
+    private List<String> customers = new ArrayList<>();
     private EventBatch eventBatch;
 
     public Event() {
@@ -79,6 +80,7 @@ public class Event {
 
     public void addCustomer(String customerID) {
         this.customers.add(customerID);
+        this.setCustomers(this.customers);
     }
 
     public void removeCustomer(String customerID) {
@@ -94,9 +96,8 @@ public class Event {
 
     public boolean findIfCustomerPresent(String customerID) {
         String customer;
-        Iterator it = this.customers.iterator();
-        while (it.hasNext()) {
-            customer = (String) it.next();
+        for (String s : this.customers) {
+            customer = s;
             if (customer.equals(customerID)) {
                 return true;
             }
