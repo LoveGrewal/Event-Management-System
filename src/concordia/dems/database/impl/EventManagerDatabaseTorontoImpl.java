@@ -7,9 +7,10 @@ import concordia.dems.model.enumeration.EventType;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class EventManagerDatabaseTorontoImpl  implements IEventManagerDatabase {
+public class EventManagerDatabaseTorontoImpl implements IEventManagerDatabase {
 
     private static Map<EventType, Map<String, Event>> eventData = new ConcurrentHashMap<>();
+
     static {
         eventData.put(EventType.CONFERENCE, new ConcurrentHashMap<>());
         eventData.put(EventType.SEMINAR, new ConcurrentHashMap<>());
@@ -22,7 +23,7 @@ public class EventManagerDatabaseTorontoImpl  implements IEventManagerDatabase {
      */
     @Override
     public Boolean addEvent(Event event) {
-        if (eventData.get(event.getEventType()).containsKey(event.getEventId())){
+        if (eventData.get(event.getEventType()).containsKey(event.getEventId())) {
             eventData.get(event.getEventType()).get(event.getEventId()).setBookingCapacity(event.getBookingCapacity());
             return Boolean.FALSE;
         }
@@ -36,11 +37,11 @@ public class EventManagerDatabaseTorontoImpl  implements IEventManagerDatabase {
      */
     @Override
     public Boolean removeEvent(Event event) {
-        if (eventData.get(event.getEventType()).containsKey(event.getEventId())){
-            return Boolean.FALSE;
+        if (eventData.get(event.getEventType()).containsKey(event.getEventId())) {
+            eventData.get(event.getEventType()).remove(event.getEventId());
+            return Boolean.TRUE;
         }
-        eventData.get(event.getEventType()).remove(event.getEventId());
-        return Boolean.TRUE;
+        return Boolean.FALSE;
     }
 
     /**
@@ -53,8 +54,8 @@ public class EventManagerDatabaseTorontoImpl  implements IEventManagerDatabase {
         Iterator iterator = eventData.get(eventType).entrySet().iterator();
         Event e;
         while (iterator.hasNext()) {
-            Map.Entry pair = (Map.Entry)iterator.next();
-            e = (Event)pair.getValue();
+            Map.Entry pair = (Map.Entry) iterator.next();
+            e = (Event) pair.getValue();
             eventList.add(e);
         }
         return eventList;
@@ -62,15 +63,15 @@ public class EventManagerDatabaseTorontoImpl  implements IEventManagerDatabase {
 
     /**
      * @param customerID customer id
-     * @param eventID event id
-     * @param eventType event type
+     * @param eventID    event id
+     * @param eventType  event type
      * @return will deduct remaining capacity and add customerID to event customer list
      */
     @Override
     public Boolean bookEvent(String customerID, String eventID, EventType eventType) {
-        if (eventData.get(eventType).containsKey(eventID)){
+        if (eventData.get(eventType).containsKey(eventID)) {
             eventData.get(eventType).get(eventID).addCustomer(customerID);
-            eventData.get(eventType).get(eventID).setRemainingCapacity(eventData.get(eventType).get(eventID).getRemainingCapacity() -1);
+            eventData.get(eventType).get(eventID).setRemainingCapacity(eventData.get(eventType).get(eventID).getBookingCapacity() - 1);
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
@@ -88,9 +89,9 @@ public class EventManagerDatabaseTorontoImpl  implements IEventManagerDatabase {
         // iterate over enums using for loop
         for (EventType eventType : EventType.values()) {
             it = eventData.get(eventType).entrySet().iterator();
-            while (it.hasNext()){
-                Map.Entry pair = (Map.Entry)it.next();
-                e = (Event)pair.getValue();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry) it.next();
+                e = (Event) pair.getValue();
                 eventList.add(e);
             }
         }
@@ -99,7 +100,7 @@ public class EventManagerDatabaseTorontoImpl  implements IEventManagerDatabase {
 
     /**
      * @param customerID customer id
-     * @param eventID event id
+     * @param eventID    event id
      * @return true when event exist with customer and false if there is no event
      */
     @Override
@@ -110,20 +111,20 @@ public class EventManagerDatabaseTorontoImpl  implements IEventManagerDatabase {
         Iterator it;
         for (EventType eventType : EventType.values()) {
             it = eventData.get(eventType).entrySet().iterator();
-            while (it.hasNext()){
-                Map.Entry pair = (Map.Entry)it.next();
-                e = (Event)pair.getValue();
-                if (e.findIfCustomerPresent(customerID)){
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry) it.next();
+                e = (Event) pair.getValue();
+                if (e.findIfCustomerPresent(customerID)) {
                     eventToCancel = e;
                     found = true;
                     break;
                 }
             }
-            if (found){
+            if (found) {
                 break;
             }
         }
-        if (eventToCancel != null){
+        if (eventToCancel != null) {
             eventToCancel.setRemainingCapacity(eventToCancel.getRemainingCapacity() + 1);
             eventToCancel.removeCustomer(customerID);
             return Boolean.TRUE;
@@ -140,12 +141,12 @@ public class EventManagerDatabaseTorontoImpl  implements IEventManagerDatabase {
         Iterator it;
         Event e;
         for (EventType eventType : EventType.values()) {
-            if (eventData.get(eventType).containsKey(eventID)){
+            if (eventData.get(eventType).containsKey(eventID)) {
                 it = eventData.get(eventType).entrySet().iterator();
-                while (it.hasNext()){
-                    Map.Entry pair = (Map.Entry)it.next();
-                    e = (Event)pair.getValue();
-                    if (e.getEventId().equals(eventID)){
+                while (it.hasNext()) {
+                    Map.Entry pair = (Map.Entry) it.next();
+                    e = (Event) pair.getValue();
+                    if (e.getEventId().equals(eventID)) {
                         return e.getRemainingCapacity();
                     }
                 }

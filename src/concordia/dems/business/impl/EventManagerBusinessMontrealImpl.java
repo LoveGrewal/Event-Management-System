@@ -10,6 +10,10 @@ import concordia.dems.model.enumeration.EventType;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * @author MayankJariwala
+ * @version 1.0.0
+ */
 public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
 
     private static IEventManagerDatabase iEventManagerDatabase;
