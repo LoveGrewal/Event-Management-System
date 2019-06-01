@@ -10,6 +10,7 @@ import concordia.dems.model.enumeration.EventBatch;
 import concordia.dems.model.enumeration.EventType;
 import concordia.dems.model.enumeration.Servers;
 
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ManagerClient {
 
     private IEventManagerCommunication iEventManagerCommunication;
+    private Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         ManagerClient managerClient = new ManagerClient();
@@ -28,56 +30,57 @@ public class ManagerClient {
     }
 
     private void execute() {
-        String requestBody = "", customerId, eventInfo, response;
+        String customerId, eventInfo, response, requestBody;
         System.err.print("Enter your id : ");
-        Scanner scanner = new Scanner(System.in);
         String managerID = scanner.nextLine();
         Servers servers = Helper.getServerFromId(managerID);
         iEventManagerCommunication = RMIServerFactory.getInstance(servers);
-        showManagerOperations();
-        int operationID = scanner.nextInt();
-        String operationName = ManagerAndClientInfo.managerOperations.get(operationID - 1);
-        try {
-            switch (operationName) {
-                case EventOperation.ADD_EVENT:
-                    String eventInformation = createNewEvent();
-                    requestBody += EventOperation.ADD_EVENT + "," + eventInformation;
-                    response = iEventManagerCommunication.performOperation(requestBody);
-                    System.err.print(response);
-                    break;
-                case EventOperation.REMOVE_EVENT:
-                    System.err.print("Enter event id: ");
-                    eventInfo = scanner.nextLine();
-                    requestBody += EventOperation.REMOVE_EVENT + "," + eventInfo;
-                    response = iEventManagerCommunication.performOperation(requestBody);
-                    System.err.print(response);
-                    break;
-                case EventOperation.LIST_AVAILABILITY:
-                    System.err.print("Enter event type: ");
-                    eventInfo = scanner.nextLine();
-                    requestBody += EventOperation.LIST_AVAILABILITY + "," + eventInfo;
-                    response = iEventManagerCommunication.performOperation(requestBody);
-                    System.err.print(response);
-                    break;
-                // Manager can perform operation for client
-                case EventOperation.BOOK_EVENT:
-                    System.out.print("Enter your client ID : ");
-                    customerId = scanner.nextLine();
-                    requestBody += EventOperation.BOOK_EVENT + "," + customerId;
-                    break;
-                case EventOperation.CANCEL_EVENT:
-                    System.out.print("Enter your client ID : ");
-                    customerId = scanner.nextLine();
-                    requestBody += EventOperation.CANCEL_EVENT + "," + customerId;
-                    break;
-                case EventOperation.GET_BOOKING_SCHEDULE:
-                    System.out.print("Enter your client ID : ");
-                    customerId = scanner.nextLine();
-                    requestBody += EventOperation.GET_BOOKING_SCHEDULE + "," + customerId;
-                    break;
+        while (true) {
+            showManagerOperations();
+            int operationID = scanner.nextInt();
+            String operationName = ManagerAndClientInfo.managerOperations.get(operationID - 1);
+            try {
+                switch (operationName) {
+                    case EventOperation.ADD_EVENT:
+                        String eventInformation = createNewEvent();
+                        requestBody = EventOperation.ADD_EVENT + "," + eventInformation;
+                        response = iEventManagerCommunication.performOperation(requestBody);
+                        System.err.println(response);
+                        break;
+                    case EventOperation.REMOVE_EVENT:
+                        requestBody = EventOperation.REMOVE_EVENT + "," + removeEventInformation();
+                        response = iEventManagerCommunication.performOperation(requestBody);
+                        System.err.println(response);
+                        break;
+                    case EventOperation.LIST_AVAILABILITY:
+                        System.err.print("Enter event type: ");
+                        eventInfo = scanner.next();
+                        requestBody = EventOperation.LIST_AVAILABILITY + "," + eventInfo;
+                        String listEventResponse = iEventManagerCommunication.performOperation(requestBody);
+                        System.err.println(listEventResponse);
+                        break;
+                    // Manager can perform operation for client
+                    case EventOperation.BOOK_EVENT:
+                        requestBody = EventOperation.BOOK_EVENT + "," + bookEventInformation();
+                        response = iEventManagerCommunication.performOperation(requestBody);
+                        System.err.print(response);
+                        break;
+                    case EventOperation.CANCEL_EVENT:
+                        requestBody = EventOperation.CANCEL_EVENT + "," + cancelEventInformation();
+                        response = iEventManagerCommunication.performOperation(requestBody);
+                        System.err.print(response);
+                        break;
+                    case EventOperation.GET_BOOKING_SCHEDULE:
+                        System.out.print("Enter your client ID : ");
+                        customerId = scanner.next();
+                        requestBody = EventOperation.GET_BOOKING_SCHEDULE + "," + customerId;
+                        response = iEventManagerCommunication.performOperation(requestBody);
+                        System.err.print(response);
+                        break;
+                }
+            } catch (RemoteException e) {
+                System.err.print("Exception message " + e.getMessage());
             }
-        } catch (RemoteException e) {
-            System.err.print("Exception message " + e.getMessage());
         }
     }
 
@@ -103,18 +106,54 @@ public class ManagerClient {
      */
     private String createNewEvent() {
         String newEventInfo;
-        System.err.print("Enter event ID : ");
-        Scanner scanner = new Scanner(System.in);
-        String eventID = scanner.nextLine();
+        System.err.print("Enter event City (MTL,TOR,OTW) : ");
+        String eventCity = scanner.next().toUpperCase();
+        System.err.print("Enter event Batch (A/M/E): ");
+        String eventBatch = scanner.next().toUpperCase();
+        System.err.print("Enter event date (ddmmyy): ");
+        String eventDate = scanner.next().toUpperCase();
+        String eventID = eventCity + "" + eventBatch + "" + eventDate;
         System.err.println("Enter event Type from below list : ");
         Arrays.stream(EventType.values()).forEach(System.out::println);
-        String eventType = scanner.nextLine();
-        System.err.println("Enter event Batch from below list : ");
-        Arrays.stream(EventBatch.values()).forEach(System.out::println);
-        String eventBatch = scanner.nextLine();
-        System.err.println("Enter event booking capacity : ");
+        String eventType = scanner.next();
+        System.err.print("Enter event booking capacity : ");
         int bookingCapacity = scanner.nextInt();
+        System.out.println("Generated Event ID is : " + eventID);
         newEventInfo = eventID + "," + eventType + "," + eventBatch + "," + bookingCapacity;
         return newEventInfo;
+    }
+
+    /**
+     * Ask Certain Information While Booking an Event from User or Manager
+     *
+     * @return String : Request Body
+     */
+    private String bookEventInformation() {
+        String requestBody = "";
+        System.err.print("Enter Customer ID : ");
+        requestBody += scanner.next();
+        System.err.print("Enter EVENT ID : ");
+        requestBody += "," + scanner.next();
+        System.err.print("Enter EVENT Type(SEMINAR/CONFERENCE/TRADESHOW) : ");
+        requestBody += "," + scanner.next();
+        return requestBody;
+    }
+
+    private String removeEventInformation() {
+        String removeEventInfo = "";
+        System.err.print("Enter event id: ");
+        removeEventInfo += scanner.next();
+        System.err.print("Enter event type: ");
+        removeEventInfo += "," + scanner.next().toUpperCase();
+        return removeEventInfo;
+    }
+
+    private String cancelEventInformation() {
+        String body = "";
+        System.out.print("Enter your client ID : ");
+        body += scanner.next();
+        System.out.print(" Enter Event ID : ");
+        body += "," + scanner.next();
+        return body;
     }
 }
