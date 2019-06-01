@@ -1,5 +1,7 @@
 package concordia.dems.helpers;
 
+import java.util.Date;
+
 /**
  * @author Mayank Jariwala
  * @version 1.0.0
@@ -21,4 +23,7 @@ public class Constants {
     public static String MTL_RMI_URL = "rmi://127.0.0.1:" + MTL_RMI_PORT + "/";
     public static String TOR_RMI_URL = "rmi://127.0.0.1:" + TOR_RMI_PORT + "/";
     public static String OTW_RMI_URL = "rmi://127.0.0.1:" + OTW_RMI_PORT + "/";
+
+    // DateTimeStamp
+    public static String TIME_STAMP = new Date().toInstant().toString();
 }

@@ -1,9 +1,7 @@
 package concordia.dems.client;
 
 import concordia.dems.communication.IEventManagerCommunication;
-import concordia.dems.helpers.EventOperation;
-import concordia.dems.helpers.Helper;
-import concordia.dems.helpers.ManagerAndClientInfo;
+import concordia.dems.helpers.*;
 import concordia.dems.model.RMIServerFactory;
 import concordia.dems.model.enumeration.EventType;
 import concordia.dems.model.enumeration.Servers;
@@ -42,6 +40,7 @@ public class ManagerClient {
                         String eventInformation = createNewEvent();
                         requestBody = EventOperation.ADD_EVENT + "," + eventInformation;
                         response = iEventManagerCommunication.performOperation(requestBody);
+                        Logger.writeLogToFile("client", managerID, requestBody, response, Constants.TIME_STAMP);
                         System.err.println(response);
                         break;
                     case EventOperation.REMOVE_EVENT:
