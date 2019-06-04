@@ -10,7 +10,7 @@ public class OttawaUDPServer implements Runnable {
     private static DatagramSocket aSocket;
     public void run() {
         try{
-            aSocket = new DatagramSocket(8888);
+            aSocket = new DatagramSocket(8890);
             byte[] buffer;
             DatagramPacket request;
             while (true) {
