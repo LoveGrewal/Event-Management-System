@@ -4,15 +4,12 @@ import concordia.dems.business.IEventManagerBusiness;
 import concordia.dems.business.impl.EventManagerBusinessTorontoImpl;
 import concordia.dems.communication.IEventManagerCommunication;
 import concordia.dems.helpers.Constants;
-import concordia.dems.helpers.EventOperation;
-import concordia.dems.model.Event;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
 
 public class EventManagerCommunicationToronto extends UnicastRemoteObject implements IEventManagerCommunication {
 
@@ -46,40 +43,22 @@ public class EventManagerCommunicationToronto extends UnicastRemoteObject implem
      */
     @Override
     public String performOperation(String userRequest) {
-        String[] unWrappingRequest = userRequest.split(",",2);
-        switch (unWrappingRequest[OPERATION_INDEX]) {
-            case EventOperation.BOOK_EVENT:
-                boolean status = eventManagerBusinessToronto.bookEvent(unWrappingRequest[INFORMATION_INDEX]);
-                if (status)
-                    return "You are registered to the requested event";
-                else
-                    return "No such event ID found";
-            case EventOperation.CANCEL_EVENT:
-                eventManagerBusinessToronto.cancelEvent(unWrappingRequest[INFORMATION_INDEX]);
+        // Checking whether string is empty
+        String verifyingRequestBody = userRequest.replaceAll(",", "");
+        if (verifyingRequestBody.equals("")) {
+            return "The request body is empty";
+        }
+        String[] unWrappingRequest = userRequest.split(",", 4);
+        switch (unWrappingRequest[Constants.TO_INDEX]) {
+            case "montreal":
+                System.err.println("Montreal UDP Request need to initiated");
+                // call montreal udp here
                 break;
-            case EventOperation.GET_BOOKING_SCHEDULE:
-                eventManagerBusinessToronto.getBookingSchedule(unWrappingRequest[INFORMATION_INDEX]);
-                break;
-            case EventOperation.ADD_EVENT:
-                boolean saveStatus = eventManagerBusinessToronto.addEvent(unWrappingRequest[INFORMATION_INDEX]);
-                if (saveStatus)
-                    return "Your event is successfully added/updated";
-                else
-                    return "Your event fail to added";
-            case EventOperation.REMOVE_EVENT:
-                boolean removeEventStatus = eventManagerBusinessToronto.removeEvent(unWrappingRequest[INFORMATION_INDEX]);
-                if (removeEventStatus)
-                    return "Event was removed successfully";
-                else
-                    return "Event was not removed successfully";
-            case EventOperation.LIST_AVAILABILITY:
-                List<Event> eventList = eventManagerBusinessToronto.listEventAvailability(unWrappingRequest[INFORMATION_INDEX]);
-                StringBuilder eventAvailabilityInformation = new StringBuilder();
-                for (Event e : eventList) {
-                    eventAvailabilityInformation.append(e.getEventId()).append(" ").append(e.getEventType()).append(" ").append(e.getBookingCapacity()).append(" ").append(e.getRemainingCapacity()).append("\n");
-                }
-                return eventAvailabilityInformation.toString();
-            default:
+            case "toronto":
+                return eventManagerBusinessToronto.performOperation(userRequest);
+            case "ottawa":
+                System.err.println("Ottawa UDP Request need to initiated");
+                // call ottawa UDP here
                 break;
         }
         return "";

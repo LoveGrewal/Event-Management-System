@@ -61,4 +61,6 @@ public interface IEventManagerBusiness {
      */
     //cancelEvent: customerId,eventId
     Boolean cancelEvent(String cancelEventInfo);
+
+    String performOperation(String userRequest);
 }
