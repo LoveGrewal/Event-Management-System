@@ -3,6 +3,8 @@ package concordia.dems.business.impl;
 import concordia.dems.business.IEventManagerBusiness;
 import concordia.dems.database.IEventManagerDatabase;
 import concordia.dems.database.impl.EventManagerDatabaseTorontoImpl;
+import concordia.dems.helpers.Constants;
+import concordia.dems.helpers.EventOperation;
 import concordia.dems.helpers.Helper;
 import concordia.dems.model.Event;
 import concordia.dems.model.enumeration.EventType;
@@ -72,5 +74,50 @@ public class EventManagerBusinessTorontoImpl implements IEventManagerBusiness {
     @Override
     public Boolean cancelEvent(String cancelEventInfo) {
         return null;
+    }
+
+    @Override
+    public String performOperation(String userRequest) {
+        String[] unWrappingRequest = userRequest.split(",", 4);
+        switch (unWrappingRequest[Constants.ACTION_INDEX]) {
+            case EventOperation.BOOK_EVENT:
+                boolean status = this.bookEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
+                if (status)
+                    return "You are registered to the requested event";
+                else
+                    return "No such event ID found";
+            case EventOperation.CANCEL_EVENT:
+                this.cancelEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
+                break;
+            case EventOperation.GET_BOOKING_SCHEDULE:
+                List<Event> bookingSchedule = this.getBookingSchedule(unWrappingRequest[Constants.INFORMATION_INDEX]);
+                StringBuilder bookingInformation = new StringBuilder();
+                for (Event e : bookingSchedule) {
+                    bookingInformation.append(e.getEventId()).append(" ").append(e.getEventType()).append(" ").append(e.getBookingCapacity()).append(" ").append(e.getRemainingCapacity()).append("\n");
+                }
+                return bookingInformation.toString();
+            case EventOperation.ADD_EVENT:
+                boolean saveStatus = this.addEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
+                if (saveStatus)
+                    return "Your event is successfully added/updated";
+                else
+                    return "Your event fail to added";
+            case EventOperation.REMOVE_EVENT:
+                boolean removeEventStatus = this.removeEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
+                if (removeEventStatus)
+                    return "Event was removed successfully";
+                else
+                    return "Event was not removed successfully";
+            case EventOperation.LIST_AVAILABILITY:
+                List<Event> eventList = this.listEventAvailability(unWrappingRequest[Constants.INFORMATION_INDEX]);
+                StringBuilder eventAvailabilityInformation = new StringBuilder();
+                for (Event e : eventList) {
+                    eventAvailabilityInformation.append(e.getEventId()).append(" ").append(e.getEventType()).append(" ").append(e.getBookingCapacity()).append(" ").append(e.getRemainingCapacity()).append("\n");
+                }
+                return eventAvailabilityInformation.toString();
+            default:
+                break;
+        }
+        return "";
     }
 }

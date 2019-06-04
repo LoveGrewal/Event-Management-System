@@ -26,4 +26,11 @@ public class Constants {
 
     // DateTimeStamp
     public static String TIME_STAMP = new Date().toInstant().toString();
+
+
+    // Unwrapping Request Index Values
+    public static int FROM_INDEX = 0;
+    public static int TO_INDEX = 1;
+    public static int ACTION_INDEX = 2;
+    public static int INFORMATION_INDEX = 3;
 }

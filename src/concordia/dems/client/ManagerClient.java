@@ -2,6 +2,7 @@ package concordia.dems.client;
 
 import concordia.dems.communication.IEventManagerCommunication;
 import concordia.dems.helpers.*;
+import concordia.dems.model.Event;
 import concordia.dems.model.RMIServerFactory;
 import concordia.dems.model.enumeration.EventType;
 import concordia.dems.model.enumeration.Servers;
@@ -12,6 +13,8 @@ import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * NOTE: Request format body parameter: actionName,from,to,eventInformation/needed information
+ *
  * @author Mayank Jariwala
  */
 public class ManagerClient {
@@ -29,6 +32,7 @@ public class ManagerClient {
         System.err.print("Enter your id : ");
         String managerID = scanner.nextLine();
         Servers servers = Helper.getServerFromId(managerID);
+        String from = Helper.getServerNameFromID(managerID);
         iEventManagerCommunication = RMIServerFactory.getInstance(servers);
         while (true) {
             showManagerOperations();
@@ -38,40 +42,42 @@ public class ManagerClient {
                 switch (operationName) {
                     case EventOperation.ADD_EVENT:
                         String eventInformation = createNewEvent();
-                        requestBody = EventOperation.ADD_EVENT + "," + eventInformation;
+                        requestBody = from + "," + eventInformation;
                         response = iEventManagerCommunication.performOperation(requestBody);
                         Logger.writeLogToFile("client", managerID, requestBody, response, Constants.TIME_STAMP);
                         System.err.println(response);
                         break;
                     case EventOperation.REMOVE_EVENT:
-                        requestBody = EventOperation.REMOVE_EVENT + "," + removeEventInformation();
+                        requestBody = from + "," + removeEventInformation();
                         response = iEventManagerCommunication.performOperation(requestBody);
                         System.err.println(response);
                         break;
                     case EventOperation.LIST_AVAILABILITY:
                         System.err.print("Enter event type: ");
                         eventInfo = scanner.next();
-                        requestBody = EventOperation.LIST_AVAILABILITY + "," + eventInfo;
+                        // to=from [ Compulsory get results from all server]
+                        requestBody = from + "," + from + " , " + EventOperation.LIST_AVAILABILITY + "," + eventInfo;
                         String listEventResponse = iEventManagerCommunication.performOperation(requestBody);
                         System.err.println(listEventResponse);
                         break;
                     // Manager can perform operation for client
                     case EventOperation.BOOK_EVENT:
-                        requestBody = EventOperation.BOOK_EVENT + "," + bookEventInformation();
+                        requestBody = from + "," + bookEventInformation();
                         response = iEventManagerCommunication.performOperation(requestBody);
-                        System.err.print(response);
+                        System.err.println(response);
                         break;
                     case EventOperation.CANCEL_EVENT:
-                        requestBody = EventOperation.CANCEL_EVENT + "," + cancelEventInformation();
+                        requestBody = from + "," + cancelEventInformation();
                         response = iEventManagerCommunication.performOperation(requestBody);
-                        System.err.print(response);
+                        System.err.println(response);
                         break;
                     case EventOperation.GET_BOOKING_SCHEDULE:
                         System.out.print("Enter your client ID : ");
                         customerId = scanner.next();
-                        requestBody = EventOperation.GET_BOOKING_SCHEDULE + "," + customerId;
+                        String to = Helper.getServerNameFromID(customerId);
+                        requestBody = from + "," + to + "," + EventOperation.GET_BOOKING_SCHEDULE + "," + customerId;
                         response = iEventManagerCommunication.performOperation(requestBody);
-                        System.err.print(response);
+                        System.err.println(response);
                         break;
                 }
             } catch (RemoteException e) {
@@ -115,7 +121,8 @@ public class ManagerClient {
         System.err.print("Enter event booking capacity : ");
         int bookingCapacity = scanner.nextInt();
         System.out.println("Generated Event ID is : " + eventID);
-        newEventInfo = eventID + "," + eventType + "," + eventBatch + "," + bookingCapacity;
+        String to = Helper.getServerNameFromID(eventID);
+        newEventInfo = to + "," + EventOperation.ADD_EVENT + "," + eventID + "," + eventType + "," + eventBatch + "," + bookingCapacity;
         return newEventInfo;
     }
 
@@ -129,19 +136,24 @@ public class ManagerClient {
         System.err.print("Enter Customer ID : ");
         requestBody += scanner.next();
         System.err.print("Enter EVENT ID : ");
-        requestBody += "," + scanner.next();
+        String eventID = scanner.next();
+        String to = Helper.getServerNameFromID(eventID);
+        requestBody += "," + eventID;
+
         System.err.print("Enter EVENT Type(SEMINAR/CONFERENCE/TRADESHOW) : ");
         requestBody += "," + scanner.next();
-        return requestBody;
+        return to + "," + EventOperation.BOOK_EVENT + "," + requestBody;
     }
 
     private String removeEventInformation() {
         String removeEventInfo = "";
         System.err.print("Enter event id: ");
-        removeEventInfo += scanner.next();
+        String eventID = scanner.next();
+        removeEventInfo += "," + eventID;
+        String to = Helper.getServerNameFromID(eventID);
         System.err.print("Enter event type: ");
         removeEventInfo += "," + scanner.next().toUpperCase();
-        return removeEventInfo;
+        return to + "," + EventOperation.REMOVE_EVENT + " ," + removeEventInfo;
     }
 
     private String cancelEventInformation() {
@@ -149,7 +161,9 @@ public class ManagerClient {
         System.out.print("Enter your client ID : ");
         body += scanner.next();
         System.out.print(" Enter Event ID : ");
-        body += "," + scanner.next();
-        return body;
+        String eventID = scanner.next();
+        body += "," + eventID;
+        String to = Helper.getServerNameFromID(eventID);
+        return to + "," + EventOperation.CANCEL_EVENT + "," + body;
     }
 }
