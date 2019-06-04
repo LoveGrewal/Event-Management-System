@@ -78,4 +78,22 @@ public class Helper {
         }
         return batch;
     }
+
+    // This function is use to add parameter like from,to into user request body
+    public static String getServerNameFromID(String ID) {
+        String server = "";
+        String serverPrefix = ID.substring(0, 3).toLowerCase();
+        switch (serverPrefix) {
+            case "mtl":
+                server = "montreal";
+                break;
+            case "otw":
+                server = "ottawa";
+                break;
+            case "tor":
+                server = "toronto";
+                break;
+        }
+        return server;
+    }
 }
