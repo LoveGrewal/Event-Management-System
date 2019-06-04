@@ -15,7 +15,7 @@ public class OttawaUDPServer implements Runnable {
             DatagramPacket request;
             while (true) {
                 buffer = new byte[1000];
-                System.out.println("Server waiting for request at 8888 ............");
+                System.out.println("Server waiting for request at 8890 ............");
                 request = new DatagramPacket(buffer, buffer.length);
                 aSocket.receive(request);
                 //byte[] b = new String(request.getData()).getBytes();
