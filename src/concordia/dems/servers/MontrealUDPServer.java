@@ -1,15 +1,23 @@
 package concordia.dems.servers;
 
+import concordia.dems.business.IEventManagerBusiness;
+import concordia.dems.business.impl.EventManagerBusinessMontrealImpl;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
+/**
+ * @author Loveshant
+ * @version 1.0.0
+ */
 public class MontrealUDPServer implements Runnable {
     private static DatagramSocket aSocket;
+
     public void run() {
-        try{
+        try {
             aSocket = new DatagramSocket(8888);
             byte[] buffer;
             DatagramPacket request;
@@ -40,23 +48,43 @@ public class MontrealUDPServer implements Runnable {
 
 class MontrealResponder implements Runnable {
 
+    private static IEventManagerBusiness eventManagerBusinessMontreal = new EventManagerBusinessMontrealImpl();
     DatagramSocket aSocket;
-    DatagramPacket reply;
+    byte[] data;
+    int length;
+    InetAddress add;
+    int port;
 
-    public MontrealResponder(byte[] data, int length, InetAddress add,  int port, DatagramSocket aSocket) {
+    public MontrealResponder(byte[] data, int length, InetAddress add, int port, DatagramSocket aSocket) {
         //this.request = request;
         this.aSocket = aSocket;
-        reply = new DatagramPacket(data, length, add, port);
-        System.out.println("Data :"+ new String(reply.getData()));
+        this.data = data;
+        this.length = length;
+        this.add = add;
+        this.port = port;
+        //System.out.println("Data :"+ new String(reply.getData()));
     }
 
-    public void  run() {
-        try{
+    public void run() {
+        DatagramPacket reply;
+        String rep;
+        String requestString;
+        try {
+            requestString = new String(data);
+            rep = eventManagerBusinessMontreal.performOperation(requestString);
+            reply = new DatagramPacket(rep.getBytes(), length, add, port);
             aSocket.send(reply);
-        }catch (SocketException e) {
+        } catch (SocketException e) {
             System.out.println("Socket: " + e.getMessage());
         } catch (IOException e) {
             System.out.println("IO: " + e.getMessage());
+        } catch (Exception e) {
+            reply = new DatagramPacket("Server Error".getBytes(), length, add, port);
+            try {
+                aSocket.send(reply);
+            } catch (IOException e1) {
+                System.out.println(e);
+            }
         }
     }
 }
