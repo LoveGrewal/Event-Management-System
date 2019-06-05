@@ -4,6 +4,7 @@ import concordia.dems.business.IEventManagerBusiness;
 import concordia.dems.business.impl.EventManagerBusinessTorontoImpl;
 import concordia.dems.communication.IEventManagerCommunication;
 import concordia.dems.helpers.Constants;
+import concordia.dems.servers.TorontoUDPClient;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
@@ -18,11 +19,13 @@ public class EventManagerCommunicationToronto extends UnicastRemoteObject implem
     private final int INFORMATION_INDEX = 1;
 
     private IEventManagerBusiness eventManagerBusinessToronto;
+    private TorontoUDPClient torontoUDPClient;
 
 
     protected EventManagerCommunicationToronto() throws RemoteException {
         super();
         eventManagerBusinessToronto = new EventManagerBusinessTorontoImpl();
+        torontoUDPClient = new TorontoUDPClient();
     }
 
     public static void main(String[] args) {
@@ -51,15 +54,15 @@ public class EventManagerCommunicationToronto extends UnicastRemoteObject implem
         String[] unWrappingRequest = userRequest.split(",", 4);
         switch (unWrappingRequest[Constants.TO_INDEX]) {
             case "montreal":
-                System.err.println("Montreal UDP Request need to initiated");
+                //System.err.println("Montreal UDP Request need to initiated");
                 // call montreal udp here
-                break;
+                return torontoUDPClient.sendMessageToMontrealUDP(userRequest);
             case "toronto":
                 return eventManagerBusinessToronto.performOperation(userRequest);
             case "ottawa":
-                System.err.println("Ottawa UDP Request need to initiated");
+                //System.err.println("Ottawa UDP Request need to initiated");
                 // call ottawa UDP here
-                break;
+                return torontoUDPClient.sendMessageToOttawaUDP(userRequest);
         }
         return "";
     }
