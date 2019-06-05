@@ -35,7 +35,7 @@ public class EventManagerBusinessTorontoImpl implements IEventManagerBusiness {
         Event event = new Event(unWrappingRequest[0],
                 Helper.getEventTypeEnumObject(unWrappingRequest[1]),
                 Helper.getEventBatchEnumObject(unWrappingRequest[2]),
-                Integer.parseInt(unWrappingRequest[3]));
+                Integer.parseInt(unWrappingRequest[3].trim()));
         return iEventManagerDatabase.addEvent(event);
     }
 
