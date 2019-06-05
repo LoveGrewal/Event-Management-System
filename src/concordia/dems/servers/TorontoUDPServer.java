@@ -72,14 +72,14 @@ class TorontoResponder implements Runnable {
         try{
             requestString = new String(data);
             rep = eventManagerBusinessToronto.performOperation(requestString);
-            reply = new DatagramPacket(rep.getBytes(), length, add, port);
+            reply = new DatagramPacket(rep.getBytes(), rep.length(), add, port);
             aSocket.send(reply);
         }catch (SocketException e) {
             System.out.println("Socket: " + e.getMessage());
         } catch (IOException e) {
             System.out.println("IO: " + e.getMessage());
         } catch (Exception e) {
-            reply = new DatagramPacket("Server Error".getBytes(), length, add, port);
+            reply = new DatagramPacket("Server Error".getBytes(), "Server Error".length(), add, port);
             try {
                 aSocket.send(reply);
             } catch (IOException e1) {
