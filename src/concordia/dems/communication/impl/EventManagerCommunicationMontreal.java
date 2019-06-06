@@ -12,7 +12,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
 
 public class EventManagerCommunicationMontreal extends UnicastRemoteObject implements IEventManagerCommunication {
 
@@ -54,10 +53,7 @@ public class EventManagerCommunicationMontreal extends UnicastRemoteObject imple
             case "montreal":
                 if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.GET_BOOKING_SCHEDULE)) {
                     //fetch list of event on toronto server
-
-
                     String torontoEvents = montrealUDPClient.sendMessageToTorontoUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
-
                     //fetch list of event on ottawa server
                     String ottawaEvents = montrealUDPClient.sendMessageToOttawaUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
                     String montrealEvents = eventManagerBusinessMontreal.performOperation(userRequest);
@@ -75,9 +71,7 @@ public class EventManagerCommunicationMontreal extends UnicastRemoteObject imple
                 if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)) {
                     //fetch list of event on toronto server
                     unWrappingRequest[Constants.ACTION_INDEX] = EventOperation.GET_BOOKING_SCHEDULE;
-
                     String torontoEvents = montrealUDPClient.sendMessageToTorontoUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
-
                     //fetch list of event on ottawa server
                     String ottawaEvents = montrealUDPClient.sendMessageToOttawaUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
                     if (checkIfEqualMoreThanThree(torontoEvents, ottawaEvents, unWrappingRequest[Constants.INFORMATION_INDEX])) {
@@ -92,9 +86,7 @@ public class EventManagerCommunicationMontreal extends UnicastRemoteObject imple
                 if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)) {
                     //fetch list of event on toronto server
                     unWrappingRequest[Constants.ACTION_INDEX] = EventOperation.GET_BOOKING_SCHEDULE;
-
                     String torontoEvents = montrealUDPClient.sendMessageToTorontoUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
-
                     //fetch list of event on ottawa server
                     String ottawaEvents = montrealUDPClient.sendMessageToOttawaUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
                     if (checkIfEqualMoreThanThree(torontoEvents, ottawaEvents, unWrappingRequest[Constants.INFORMATION_INDEX])) {

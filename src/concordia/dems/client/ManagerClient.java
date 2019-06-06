@@ -145,11 +145,11 @@ public class ManagerClient {
         String removeEventInfo = "";
         System.err.print("Enter event id: ");
         String eventID = scanner.next();
-        removeEventInfo += "," + eventID;
+        removeEventInfo += eventID;
         String to = Helper.getServerNameFromID(eventID);
         System.err.print("Enter event type: ");
         removeEventInfo += "," + scanner.next().toUpperCase();
-        return to + "," + EventOperation.REMOVE_EVENT + " ," + removeEventInfo;
+        return to + "," + EventOperation.REMOVE_EVENT + "," + removeEventInfo;
     }
 
     private String cancelEventInformation() {
