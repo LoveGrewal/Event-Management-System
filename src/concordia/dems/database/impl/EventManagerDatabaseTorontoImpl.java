@@ -47,10 +47,10 @@ public class EventManagerDatabaseTorontoImpl implements IEventManagerDatabase {
     public Boolean removeEvent(Event event) {
         if (eventData.get(event.getEventType()).containsKey(event.getEventId())) {
             eventData.get(event.getEventType()).remove(event.getEventId());
-            Logger.writeLogToFile("server", "torontoServer", "removeEvent", "removed : "+ event.getEventId(), Constants.TIME_STAMP);
+            Logger.writeLogToFile("server", "torontoServer", "removeEvent", "removed : " + event.getEventId(), Constants.TIME_STAMP);
             return Boolean.TRUE;
         }
-        Logger.writeLogToFile("server", "torontoServer", "removeEvent", "event id not found : "+ event.getEventId(), Constants.TIME_STAMP);
+        Logger.writeLogToFile("server", "torontoServer", "removeEvent", "event id not found : " + event.getEventId(), Constants.TIME_STAMP);
         return Boolean.FALSE;
     }
 
@@ -81,10 +81,15 @@ public class EventManagerDatabaseTorontoImpl implements IEventManagerDatabase {
     @Override
     public Boolean bookEvent(String customerID, String eventID, EventType eventType) {
         if (eventData.get(eventType).containsKey(eventID)) {
-            eventData.get(eventType).get(eventID).addCustomer(customerID);
-            eventData.get(eventType).get(eventID).setRemainingCapacity(eventData.get(eventType).get(eventID).getBookingCapacity() - 1);
-            Logger.writeLogToFile("server", "torontoServer", "bookEvent", "event booked for customer " + customerID, Constants.TIME_STAMP);
-            return Boolean.TRUE;
+            if (eventData.get(eventType).get(eventID).getRemainingCapacity() > 0) {
+                eventData.get(eventType).get(eventID).addCustomer(customerID);
+                eventData.get(eventType).get(eventID).setRemainingCapacity(eventData.get(eventType).get(eventID).getBookingCapacity() - 1);
+                Logger.writeLogToFile("server", "torontoServer", "bookEvent", "event booked for customer " + customerID, Constants.TIME_STAMP);
+                return Boolean.TRUE;
+            } else {
+                Logger.writeLogToFile("server", "torontoServer", "bookEvent", "Capacity is full", Constants.TIME_STAMP);
+                return false;
+            }
         }
         Logger.writeLogToFile("server", "torontoServer", "bookEvent", "no such event found for event id " + eventID, Constants.TIME_STAMP);
         return Boolean.FALSE;
@@ -109,7 +114,7 @@ public class EventManagerDatabaseTorontoImpl implements IEventManagerDatabase {
                     eventList.add(e);
             }
         }
-        Logger.writeLogToFile("server", "torontoServer", "getBookingSchedule", "booking schedule sent for customer "+ customerID, Constants.TIME_STAMP);
+        Logger.writeLogToFile("server", "torontoServer", "getBookingSchedule", "booking schedule sent for customer " + customerID, Constants.TIME_STAMP);
         return eventList;
     }
 
@@ -142,10 +147,10 @@ public class EventManagerDatabaseTorontoImpl implements IEventManagerDatabase {
         if (eventToCancel != null) {
             eventToCancel.setRemainingCapacity(eventToCancel.getRemainingCapacity() + 1);
             eventToCancel.removeCustomer(customerID);
-            Logger.writeLogToFile("server", "torontoServer", "cancelEvent", "event cancel for "+ customerID+" in "+ eventID, Constants.TIME_STAMP);
+            Logger.writeLogToFile("server", "torontoServer", "cancelEvent", "event cancel for " + customerID + " in " + eventID, Constants.TIME_STAMP);
             return Boolean.TRUE;
         }
-        Logger.writeLogToFile("server", "torontoServer", "cancelEvent", "event cancel rejected for "+ customerID+" in "+ eventID+" event not found", Constants.TIME_STAMP);
+        Logger.writeLogToFile("server", "torontoServer", "cancelEvent", "event cancel rejected for " + customerID + " in " + eventID + " event not found", Constants.TIME_STAMP);
         return Boolean.FALSE;
     }
 
