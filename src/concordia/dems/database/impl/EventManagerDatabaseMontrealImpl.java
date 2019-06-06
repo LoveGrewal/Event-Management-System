@@ -38,11 +38,11 @@ public class EventManagerDatabaseMontrealImpl implements IEventManagerDatabase {
     public Boolean addEvent(Event event) {
         if (eventData.get(event.getEventType()).containsKey(event.getEventId())) {
             eventData.get(event.getEventType()).get(event.getEventId()).setBookingCapacity(event.getBookingCapacity());
-            Logger.writeLogToFile("server", "montrealServer", "addEvent", "updated", Constants.TIME_STAMP);
+            Logger.writeLogToFile("server", "montrealServer", "addEvent", "updated event : "+ event.getEventId(), Constants.TIME_STAMP);
             return Boolean.FALSE;
         }
         eventData.get(event.getEventType()).put(event.getEventId(), event);
-        Logger.writeLogToFile("server", "montrealServer", "addEvent", "added", Constants.TIME_STAMP);
+        Logger.writeLogToFile("server", "montrealServer", "addEvent", "added : "+ event.getEventId(), Constants.TIME_STAMP);
         return Boolean.TRUE;
     }
 
@@ -73,7 +73,9 @@ public class EventManagerDatabaseMontrealImpl implements IEventManagerDatabase {
         while (iterator.hasNext()) {
             Map.Entry pair = (Map.Entry) iterator.next();
             e = (Event) pair.getValue();
-            eventList.add(e);
+            if (e.getRemainingCapacity() > 0){
+                eventList.add(e);
+            }
         }
         Logger.writeLogToFile("server", "montrealServer", "listEventAvailability", "fetch and sent", Constants.TIME_STAMP);
         return eventList;

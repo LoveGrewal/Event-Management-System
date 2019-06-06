@@ -104,6 +104,11 @@ public class EventManagerCommunicationOttawa extends UnicastRemoteObject impleme
                     String montrealEvents = ottawaUDPClient.sendMessageToMontrealUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
                     String ottawaEvents = eventManagerBusinessOttawa.performOperation(userRequest);
                     return String.join("\n", torontoEvents, ottawaEvents, montrealEvents);
+                } else if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.LIST_AVAILABILITY)) {
+                    String torontoEvents = ottawaUDPClient.sendMessageToTorontoUDP(userRequest);
+                    String montrealEvents = ottawaUDPClient.sendMessageToMontrealUDP(userRequest);
+                    String ottawaEvents = eventManagerBusinessOttawa.performOperation(userRequest);
+                    return String.join("\n", torontoEvents, ottawaEvents, montrealEvents);
                 } else {
                     return eventManagerBusinessOttawa.performOperation(userRequest);
                 }
