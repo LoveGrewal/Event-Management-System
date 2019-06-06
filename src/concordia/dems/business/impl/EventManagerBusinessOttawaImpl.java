@@ -31,9 +31,9 @@ public class EventManagerBusinessOttawaImpl implements IEventManagerBusiness {
         System.err.println(addEventInfo);
         String[] unWrappingRequest = addEventInfo.split(",");
         //0 = EventID , 1 = Event Type , 2 = Event Batch , 3 = Booking Capacity
-        Event event = new Event(unWrappingRequest[0],
-                Helper.getEventTypeEnumObject(unWrappingRequest[1]),
-                Helper.getEventBatchEnumObject(unWrappingRequest[2]),
+        Event event = new Event(unWrappingRequest[0].trim(),
+                Helper.getEventTypeEnumObject(unWrappingRequest[1].trim()),
+                Helper.getEventBatchEnumObject(unWrappingRequest[2].trim()),
                 Integer.parseInt(unWrappingRequest[3].trim()));
         return iEventManagerDatabase.addEvent(event);
     }
@@ -41,13 +41,13 @@ public class EventManagerBusinessOttawaImpl implements IEventManagerBusiness {
     @Override
     public Boolean removeEvent(String removeEventInfo) {
         String[] unWrappingRequest = removeEventInfo.split(",");
-        Event e = new Event(unWrappingRequest[0], Helper.getEventTypeEnumObject(unWrappingRequest[1]));
+        Event e = new Event(unWrappingRequest[0], Helper.getEventTypeEnumObject(unWrappingRequest[1].trim()));
         return iEventManagerDatabase.removeEvent(e);
     }
 
     @Override
     public List<Event> listEventAvailability(String eventType) {
-        EventType eventTypeObj = Helper.getEventTypeEnumObject(eventType);
+        EventType eventTypeObj = Helper.getEventTypeEnumObject(eventType.trim());
         return iEventManagerDatabase.listEventAvailability(eventTypeObj);
     }
 
@@ -58,21 +58,23 @@ public class EventManagerBusinessOttawaImpl implements IEventManagerBusiness {
     @Override
     public Boolean bookEvent(String eventBookingInfo) {
         String[] unWrappingRequest = eventBookingInfo.split(",");
-        String customerID = unWrappingRequest[0];
-        String eventID = unWrappingRequest[1];
-        EventType eventType = Helper.getEventTypeEnumObject(unWrappingRequest[2]);
+        String customerID = unWrappingRequest[0].trim();
+        String eventID = unWrappingRequest[1].trim();
+        EventType eventType = Helper.getEventTypeEnumObject(unWrappingRequest[2].trim());
         return iEventManagerDatabase.bookEvent(customerID, eventID, eventType);
     }
 
     @Override
     public List<Event> getBookingSchedule(String customerID) {
-        System.err.println("Booking Schedule Info : " + customerID);
-        return null;
+        return iEventManagerDatabase.getBookingSchedule(customerID);
     }
 
     @Override
     public Boolean cancelEvent(String cancelEventInfo) {
-        return null;
+        String[] unWrappingRequest = cancelEventInfo.split(",");
+        String customerID = unWrappingRequest[0].trim();
+        String eventID = unWrappingRequest[1].trim();
+        return iEventManagerDatabase.cancelEvent(customerID, eventID);
     }
 
     @Override

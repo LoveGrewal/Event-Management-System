@@ -52,12 +52,8 @@ public class EventManagerCommunicationMontreal extends UnicastRemoteObject imple
             case "montreal":
                 return eventManagerBusinessMontreal.performOperation(userRequest);
             case "toronto":
-                //System.err.println("Toronto UDP Request need to initiated");
-                // call toronto UDP here
                 return montrealUDPClient.sendMessageToTorontoUDP(userRequest);
             case "ottawa":
-                //System.err.println("Ottawa UDP Request need to initiated");
-                // call ottawa udp here
                 return montrealUDPClient.sendMessageToOttawaUDP(userRequest);
         }
         return "";
