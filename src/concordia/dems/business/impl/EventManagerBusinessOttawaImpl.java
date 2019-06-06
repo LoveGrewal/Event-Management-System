@@ -87,7 +87,7 @@ public class EventManagerBusinessOttawaImpl implements IEventManagerBusiness {
                 if (status)
                     return "You are registered to the requested event";
                 else
-                    return "No such event ID found";
+                    return "No such event ID found / Capacity is full";
             case EventOperation.CANCEL_EVENT:
                 this.cancelEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
                 break;
