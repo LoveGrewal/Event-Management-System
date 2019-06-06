@@ -92,7 +92,8 @@ public class EventManagerDatabaseTorontoImpl implements IEventManagerDatabase {
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry) it.next();
                 e = (Event) pair.getValue();
-                eventList.add(e);
+                if (e.getCustomers().contains(customerID))
+                    eventList.add(e);
             }
         }
         return eventList;
