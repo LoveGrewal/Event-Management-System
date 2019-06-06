@@ -1,9 +1,8 @@
 package concordia.dems.client;
 
 import concordia.dems.communication.IEventManagerCommunication;
-import concordia.dems.helpers.EventOperation;
-import concordia.dems.helpers.Helper;
-import concordia.dems.helpers.ManagerAndClientInfo;
+import concordia.dems.helpers.*;
+import concordia.dems.model.Event;
 import concordia.dems.model.RMIServerFactory;
 import concordia.dems.model.enumeration.Servers;
 
@@ -44,13 +43,18 @@ public class CustomerClient {
                         requestBody = from + "," + this.bookEventInformation(customerId);
                         String bookEventResponse = communication.performOperation(requestBody);
                         System.err.println(bookEventResponse);
+                        Logger.writeLogToFile("client", customerId, requestBody, bookEventResponse, Constants.TIME_STAMP);
                         break;
                     case EventOperation.CANCEL_EVENT:
                         requestBody = from + "," + this.cancelEventInformation(customerId);
                         String cancelEventResponse = communication.performOperation(requestBody);
                         System.err.println(cancelEventResponse);
+                        Logger.writeLogToFile("client", customerId, requestBody, cancelEventResponse, Constants.TIME_STAMP);
                         break;
                     case EventOperation.GET_BOOKING_SCHEDULE:
+                        requestBody = from + "," + from + "," + EventOperation.GET_BOOKING_SCHEDULE + "," + customerId;
+                        String bookingScheduleResponse = communication.performOperation(requestBody);
+                        Logger.writeLogToFile("client", customerId, requestBody, bookingScheduleResponse, Constants.TIME_STAMP);
                         break;
                 }
             } catch (RemoteException e) {
