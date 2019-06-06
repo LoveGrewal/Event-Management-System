@@ -30,12 +30,16 @@ public class EventManagerDatabaseOttawaImpl implements IEventManagerDatabase {
     @Override
     public Boolean addEvent(Event event) {
         if (eventData.get(event.getEventType()).containsKey(event.getEventId())) {
+            Event existingEvent = eventData.get(event.getEventType()).get(event.getEventId());
+            int updatedRemainingCapacity = Math.abs(existingEvent.getBookingCapacity() - event.getBookingCapacity()) + existingEvent.getRemainingCapacity();
+            eventData.get(event.getEventType()).get(event.getEventId()).setRemainingCapacity(updatedRemainingCapacity);
             eventData.get(event.getEventType()).get(event.getEventId()).setBookingCapacity(event.getBookingCapacity());
-            Logger.writeLogToFile("server", "ottawaServer", "addEvent", "updated : "+ event.getEventId(), Constants.TIME_STAMP);
+            Logger.writeLogToFile("server", "ottawaServer", "addEvent", "updated : " + event.getEventId(), Constants.TIME_STAMP);
             return Boolean.FALSE;
         }
+        event.setRemainingCapacity(event.getBookingCapacity());
         eventData.get(event.getEventType()).put(event.getEventId(), event);
-        Logger.writeLogToFile("server", "ottawaServer", "addEvent", "added : "+ event.getEventId(), Constants.TIME_STAMP);
+        Logger.writeLogToFile("server", "ottawaServer", "addEvent", "added : " + event.getEventId(), Constants.TIME_STAMP);
         return Boolean.TRUE;
     }
 
@@ -66,9 +70,7 @@ public class EventManagerDatabaseOttawaImpl implements IEventManagerDatabase {
         while (iterator.hasNext()) {
             Map.Entry pair = (Map.Entry) iterator.next();
             e = (Event) pair.getValue();
-            if (e.getRemainingCapacity() > 0){
-                eventList.add(e);
-            }
+            eventList.add(e);
         }
         Logger.writeLogToFile("server", "ottawaServer", "listEventAvailability", "fetch and sent", Constants.TIME_STAMP);
         return eventList;
