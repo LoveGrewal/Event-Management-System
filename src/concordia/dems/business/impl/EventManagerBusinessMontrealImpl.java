@@ -65,6 +65,7 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
 
     @Override
     public synchronized List<Event> getBookingSchedule(String customerID) {
+        customerID = customerID.split(",")[0].trim();
         return iEventManagerDatabase.getBookingSchedule(customerID);
     }
 

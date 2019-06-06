@@ -66,6 +66,7 @@ public class EventManagerBusinessOttawaImpl implements IEventManagerBusiness {
 
     @Override
     public List<Event> getBookingSchedule(String customerID) {
+        customerID = customerID.split(",")[0].trim();
         return iEventManagerDatabase.getBookingSchedule(customerID);
     }
 
