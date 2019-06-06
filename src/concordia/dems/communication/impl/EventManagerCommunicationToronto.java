@@ -4,6 +4,7 @@ import concordia.dems.business.IEventManagerBusiness;
 import concordia.dems.business.impl.EventManagerBusinessTorontoImpl;
 import concordia.dems.communication.IEventManagerCommunication;
 import concordia.dems.helpers.Constants;
+import concordia.dems.helpers.EventOperation;
 import concordia.dems.servers.TorontoUDPClient;
 
 import java.rmi.AlreadyBoundException;
@@ -56,14 +57,67 @@ public class EventManagerCommunicationToronto extends UnicastRemoteObject implem
             case "montreal":
                 //System.err.println("Montreal UDP Request need to initiated");
                 // call montreal udp here
-                return torontoUDPClient.sendMessageToMontrealUDP(userRequest);
+                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)){
+                    //fetch list of event on toronto server
+                    unWrappingRequest[Constants.ACTION_INDEX] = EventOperation.GET_BOOKING_SCHEDULE;
+
+                    String ottawaEvents = torontoUDPClient.sendMessageToOttawaUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
+
+                    //fetch list of event on ottawa server
+                    String montrealEvents = torontoUDPClient.sendMessageToMontrealUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
+                    if (checkIfEqualMoreThanThree(ottawaEvents, montrealEvents, unWrappingRequest[Constants.INFORMATION_INDEX])){
+                        return "Limit Exceeded";
+                    }else{
+                        return torontoUDPClient.sendMessageToMontrealUDP(userRequest);
+                    }
+                }
+                else{
+                    return torontoUDPClient.sendMessageToMontrealUDP(userRequest);
+                }
+
             case "toronto":
                 return eventManagerBusinessToronto.performOperation(userRequest);
             case "ottawa":
                 //System.err.println("Ottawa UDP Request need to initiated");
                 // call ottawa UDP here
-                return torontoUDPClient.sendMessageToOttawaUDP(userRequest);
+                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)){
+                    //fetch list of event on toronto server
+                    unWrappingRequest[Constants.ACTION_INDEX] = EventOperation.GET_BOOKING_SCHEDULE;
+
+                    String ottawaEvents = torontoUDPClient.sendMessageToOttawaUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
+
+                    //fetch list of event on ottawa server
+                    String montrealEvents = torontoUDPClient.sendMessageToMontrealUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
+                    if (checkIfEqualMoreThanThree(ottawaEvents, montrealEvents, unWrappingRequest[Constants.INFORMATION_INDEX])){
+                        return "Limit Exceeded";
+                    }else{
+                        return torontoUDPClient.sendMessageToOttawaUDP(userRequest);
+                    }
+                }
+                else{
+                    return torontoUDPClient.sendMessageToOttawaUDP(userRequest);
+                }
+
         }
         return "";
+    }
+    private boolean checkIfEqualMoreThanThree(String events1,String events2, String inf){
+        //get month of current booking
+        String currMonth = inf.split(",")[1].substring(6, 8).trim();
+        int eventCount = 0;
+
+        String[] events = events1.split("\n");
+        for(String s : events){
+            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())){
+                eventCount++;
+            }
+        }
+        events = events2.split("\n");
+        for(String s : events){
+            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())){
+                eventCount++;
+            }
+        }
+        return  (eventCount>=3);
     }
 }

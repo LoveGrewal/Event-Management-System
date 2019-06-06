@@ -2,6 +2,7 @@ package concordia.dems.database.impl;
 
 import concordia.dems.database.IEventManagerDatabase;
 import concordia.dems.model.Event;
+import concordia.dems.model.enumeration.EventBatch;
 import concordia.dems.model.enumeration.EventType;
 
 import java.util.*;
@@ -12,8 +13,11 @@ public class EventManagerDatabaseOttawaImpl implements IEventManagerDatabase {
     private static Map<EventType, Map<String, Event>> eventData = new ConcurrentHashMap<>();
 
     static {
+        Map<String, Event> temp = new ConcurrentHashMap<>();
+        temp.put("OTWA120619", new Event("OTWA120619", EventType.SEMINAR, EventBatch.AFTERNOON, 35));
+        temp.put("OTWM130619", new Event("OTWM130619", EventType.SEMINAR, EventBatch.MORNING, 35));
         eventData.put(EventType.CONFERENCE, new ConcurrentHashMap<>());
-        eventData.put(EventType.SEMINAR, new ConcurrentHashMap<>());
+        eventData.put(EventType.SEMINAR, temp);
         eventData.put(EventType.TRADESHOW, new ConcurrentHashMap<>());
     }
 
