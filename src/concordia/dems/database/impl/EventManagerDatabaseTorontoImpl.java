@@ -1,6 +1,8 @@
 package concordia.dems.database.impl;
 
 import concordia.dems.database.IEventManagerDatabase;
+import concordia.dems.helpers.Constants;
+import concordia.dems.helpers.Logger;
 import concordia.dems.model.Event;
 import concordia.dems.model.enumeration.EventBatch;
 import concordia.dems.model.enumeration.EventType;
@@ -29,9 +31,11 @@ public class EventManagerDatabaseTorontoImpl implements IEventManagerDatabase {
     public Boolean addEvent(Event event) {
         if (eventData.get(event.getEventType()).containsKey(event.getEventId())) {
             eventData.get(event.getEventType()).get(event.getEventId()).setBookingCapacity(event.getBookingCapacity());
+            Logger.writeLogToFile("server", "torontoServer", "addEvent", "updated", Constants.TIME_STAMP);
             return Boolean.FALSE;
         }
         eventData.get(event.getEventType()).put(event.getEventId(), event);
+        Logger.writeLogToFile("server", "torontoServer", "addEvent", "added", Constants.TIME_STAMP);
         return Boolean.TRUE;
     }
 
@@ -43,8 +47,10 @@ public class EventManagerDatabaseTorontoImpl implements IEventManagerDatabase {
     public Boolean removeEvent(Event event) {
         if (eventData.get(event.getEventType()).containsKey(event.getEventId())) {
             eventData.get(event.getEventType()).remove(event.getEventId());
+            Logger.writeLogToFile("server", "torontoServer", "removeEvent", "removed : "+ event.getEventId(), Constants.TIME_STAMP);
             return Boolean.TRUE;
         }
+        Logger.writeLogToFile("server", "torontoServer", "removeEvent", "event id not found : "+ event.getEventId(), Constants.TIME_STAMP);
         return Boolean.FALSE;
     }
 
@@ -62,6 +68,7 @@ public class EventManagerDatabaseTorontoImpl implements IEventManagerDatabase {
             e = (Event) pair.getValue();
             eventList.add(e);
         }
+        Logger.writeLogToFile("server", "torontoServer", "listEventAvailability", "fetch and sent", Constants.TIME_STAMP);
         return eventList;
     }
 
@@ -76,8 +83,10 @@ public class EventManagerDatabaseTorontoImpl implements IEventManagerDatabase {
         if (eventData.get(eventType).containsKey(eventID)) {
             eventData.get(eventType).get(eventID).addCustomer(customerID);
             eventData.get(eventType).get(eventID).setRemainingCapacity(eventData.get(eventType).get(eventID).getBookingCapacity() - 1);
+            Logger.writeLogToFile("server", "torontoServer", "bookEvent", "event booked for customer " + customerID, Constants.TIME_STAMP);
             return Boolean.TRUE;
         }
+        Logger.writeLogToFile("server", "torontoServer", "bookEvent", "no such event found for event id " + eventID, Constants.TIME_STAMP);
         return Boolean.FALSE;
     }
 
@@ -100,6 +109,7 @@ public class EventManagerDatabaseTorontoImpl implements IEventManagerDatabase {
                     eventList.add(e);
             }
         }
+        Logger.writeLogToFile("server", "torontoServer", "getBookingSchedule", "booking schedule sent for customer "+ customerID, Constants.TIME_STAMP);
         return eventList;
     }
 
@@ -132,8 +142,10 @@ public class EventManagerDatabaseTorontoImpl implements IEventManagerDatabase {
         if (eventToCancel != null) {
             eventToCancel.setRemainingCapacity(eventToCancel.getRemainingCapacity() + 1);
             eventToCancel.removeCustomer(customerID);
+            Logger.writeLogToFile("server", "torontoServer", "cancelEvent", "event cancel for "+ customerID+" in "+ eventID, Constants.TIME_STAMP);
             return Boolean.TRUE;
         }
+        Logger.writeLogToFile("server", "torontoServer", "cancelEvent", "event cancel rejected for "+ customerID+" in "+ eventID+" event not found", Constants.TIME_STAMP);
         return Boolean.FALSE;
     }
 
