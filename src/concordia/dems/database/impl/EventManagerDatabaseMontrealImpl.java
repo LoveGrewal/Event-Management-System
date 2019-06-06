@@ -73,7 +73,9 @@ public class EventManagerDatabaseMontrealImpl implements IEventManagerDatabase {
         while (iterator.hasNext()) {
             Map.Entry pair = (Map.Entry) iterator.next();
             e = (Event) pair.getValue();
-            eventList.add(e);
+            if (e.getRemainingCapacity() > 0){
+                eventList.add(e);
+            }
         }
         Logger.writeLogToFile("server", "montrealServer", "listEventAvailability", "fetch and sent", Constants.TIME_STAMP);
         return eventList;
