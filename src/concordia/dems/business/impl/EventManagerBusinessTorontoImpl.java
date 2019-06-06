@@ -101,9 +101,9 @@ public class EventManagerBusinessTorontoImpl implements IEventManagerBusiness {
             case EventOperation.ADD_EVENT:
                 boolean saveStatus = this.addEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
                 if (saveStatus)
-                    return "Your event is successfully added/updated";
+                    return "Your event is successfully added";
                 else
-                    return "Your event fail to added";
+                    return "Your event is successfully updated";
             case EventOperation.REMOVE_EVENT:
                 boolean removeEventStatus = this.removeEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
                 if (removeEventStatus)
