@@ -2,7 +2,6 @@ package concordia.dems.client;
 
 import concordia.dems.communication.IEventManagerCommunication;
 import concordia.dems.helpers.*;
-import concordia.dems.model.Event;
 import concordia.dems.model.RMIServerFactory;
 import concordia.dems.model.enumeration.EventType;
 import concordia.dems.model.enumeration.Servers;
@@ -23,6 +22,7 @@ public class ManagerClient {
     private Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+        System.out.println("Welcome to manager application :)");
         ManagerClient managerClient = new ManagerClient();
         managerClient.execute();
     }
@@ -56,7 +56,7 @@ public class ManagerClient {
                         System.err.print("Enter event type: ");
                         eventInfo = scanner.next();
                         // to=from [ Compulsory get results from all server]
-                        requestBody = from + "," + from + " , " + EventOperation.LIST_AVAILABILITY + "," + eventInfo;
+                        requestBody = from + "," + from + "," + EventOperation.LIST_AVAILABILITY + "," + eventInfo;
                         String listEventResponse = iEventManagerCommunication.performOperation(requestBody);
                         System.err.println(listEventResponse);
                         break;
@@ -84,15 +84,6 @@ public class ManagerClient {
                 System.err.print("Exception message " + e.getMessage());
             }
         }
-    }
-
-    /**
-     * Just Listing dummy values of Manager
-     */
-    private void listManagerIds() {
-        AtomicInteger idCounter = new AtomicInteger(1);
-        System.err.println("Select number from below option for identifying manager");
-        ManagerAndClientInfo.managersId.forEach(managerId -> System.out.println(idCounter.getAndIncrement() + " " + managerId));
     }
 
     private void showManagerOperations() {
