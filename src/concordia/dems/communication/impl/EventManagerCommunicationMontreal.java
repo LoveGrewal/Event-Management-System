@@ -62,12 +62,17 @@ public class EventManagerCommunicationMontreal extends UnicastRemoteObject imple
                     String ottawaEvents = montrealUDPClient.sendMessageToOttawaUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
                     String montrealEvents = eventManagerBusinessMontreal.performOperation(userRequest);
                     return String.join("\n", torontoEvents, ottawaEvents, montrealEvents);
+                } else if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.LIST_AVAILABILITY)) {
+                    String torontoEvents = montrealUDPClient.sendMessageToTorontoUDP(userRequest);
+                    String ottawaEvents = montrealUDPClient.sendMessageToOttawaUDP(userRequest);
+                    String montrealEvents = eventManagerBusinessMontreal.performOperation(userRequest);
+                    return String.join("\n", torontoEvents, ottawaEvents, montrealEvents);
                 } else {
                     return eventManagerBusinessMontreal.performOperation(userRequest);
                 }
 
             case "toronto":
-                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)){
+                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)) {
                     //fetch list of event on toronto server
                     unWrappingRequest[Constants.ACTION_INDEX] = EventOperation.GET_BOOKING_SCHEDULE;
 
@@ -75,17 +80,16 @@ public class EventManagerCommunicationMontreal extends UnicastRemoteObject imple
 
                     //fetch list of event on ottawa server
                     String ottawaEvents = montrealUDPClient.sendMessageToOttawaUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
-                    if (checkIfEqualMoreThanThree(torontoEvents, ottawaEvents, unWrappingRequest[Constants.INFORMATION_INDEX])){
+                    if (checkIfEqualMoreThanThree(torontoEvents, ottawaEvents, unWrappingRequest[Constants.INFORMATION_INDEX])) {
                         return "Limit Exceeded";
-                    }else{
+                    } else {
                         return montrealUDPClient.sendMessageToTorontoUDP(userRequest);
                     }
-                }
-                else{
+                } else {
                     return montrealUDPClient.sendMessageToTorontoUDP(userRequest);
                 }
             case "ottawa":
-                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)){
+                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)) {
                     //fetch list of event on toronto server
                     unWrappingRequest[Constants.ACTION_INDEX] = EventOperation.GET_BOOKING_SCHEDULE;
 
@@ -93,36 +97,36 @@ public class EventManagerCommunicationMontreal extends UnicastRemoteObject imple
 
                     //fetch list of event on ottawa server
                     String ottawaEvents = montrealUDPClient.sendMessageToOttawaUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
-                    if (checkIfEqualMoreThanThree(torontoEvents, ottawaEvents, unWrappingRequest[Constants.INFORMATION_INDEX])){
+                    if (checkIfEqualMoreThanThree(torontoEvents, ottawaEvents, unWrappingRequest[Constants.INFORMATION_INDEX])) {
                         return "Limit Exceeded";
-                    }else{
+                    } else {
                         return montrealUDPClient.sendMessageToOttawaUDP(userRequest);
                     }
-                }
-                else{
+                } else {
                     return montrealUDPClient.sendMessageToOttawaUDP(userRequest);
                 }
 
         }
         return "";
     }
-    private boolean checkIfEqualMoreThanThree(String events1,String events2, String inf){
+
+    private boolean checkIfEqualMoreThanThree(String events1, String events2, String inf) {
         //get month of current booking
         String currMonth = inf.split(",")[1].substring(6, 8).trim();
         int eventCount = 0;
 
         String[] events = events1.split("\n");
-        for(String s : events){
-            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())){
+        for (String s : events) {
+            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())) {
                 eventCount++;
             }
         }
         events = events2.split("\n");
-        for(String s : events){
-            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())){
+        for (String s : events) {
+            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())) {
                 eventCount++;
             }
         }
-        return  (eventCount>=3);
+        return (eventCount >= 3);
     }
 }

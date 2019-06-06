@@ -47,7 +47,7 @@ public class EventManagerBusinessTorontoImpl implements IEventManagerBusiness {
 
     @Override
     public synchronized List<Event> listEventAvailability(String eventType) {
-        EventType eventTypeObj = Helper.getEventTypeEnumObject(eventType);
+        EventType eventTypeObj = Helper.getEventTypeEnumObject(eventType.trim());
         return iEventManagerDatabase.listEventAvailability(eventTypeObj);
     }
 
