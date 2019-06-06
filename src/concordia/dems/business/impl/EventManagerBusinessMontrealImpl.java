@@ -79,7 +79,7 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
 
 
     @Override
-    public String performOperation(String userRequest) {
+    public synchronized String performOperation(String userRequest) {
         String[] unWrappingRequest = userRequest.split(",", 4);
         switch (unWrappingRequest[Constants.ACTION_INDEX]) {
             case EventOperation.BOOK_EVENT:
@@ -89,8 +89,11 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
                 else
                     return "No such event ID found / Capacity is full";
             case EventOperation.CANCEL_EVENT:
-                this.cancelEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
-                break;
+                boolean cancelStatus = this.cancelEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
+                if (cancelStatus)
+                    return "You have been removed from the request event";
+                else
+                    return "Cancellation process failed";
             case EventOperation.GET_BOOKING_SCHEDULE:
                 List<Event> bookingSchedule = this.getBookingSchedule(unWrappingRequest[Constants.INFORMATION_INDEX]);
                 StringBuilder bookingInformation = new StringBuilder();
