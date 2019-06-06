@@ -50,6 +50,7 @@ public class ManagerClient {
                     case EventOperation.REMOVE_EVENT:
                         requestBody = from + "," + removeEventInformation();
                         response = iEventManagerCommunication.performOperation(requestBody);
+                        Logger.writeLogToFile("client", managerID, requestBody, response, Constants.TIME_STAMP);
                         System.err.println(response);
                         break;
                     case EventOperation.LIST_AVAILABILITY:
@@ -58,6 +59,7 @@ public class ManagerClient {
                         // to=from [ Compulsory get results from all server]
                         requestBody = from + "," + from + "," + EventOperation.LIST_AVAILABILITY + "," + eventInfo;
                         String listEventResponse = iEventManagerCommunication.performOperation(requestBody);
+                        Logger.writeLogToFile("client", managerID, requestBody, listEventResponse, Constants.TIME_STAMP);
                         System.err.println(listEventResponse);
                         break;
                     // Manager can perform operation for client
@@ -65,11 +67,13 @@ public class ManagerClient {
                         requestBody = from + "," + bookEventInformation();
                         response = iEventManagerCommunication.performOperation(requestBody);
                         System.err.println(response);
+                        Logger.writeLogToFile("client", managerID, requestBody, response, Constants.TIME_STAMP);
                         break;
                     case EventOperation.CANCEL_EVENT:
                         requestBody = from + "," + cancelEventInformation();
                         response = iEventManagerCommunication.performOperation(requestBody);
                         System.err.println(response);
+                        Logger.writeLogToFile("client", managerID, requestBody, response, Constants.TIME_STAMP);
                         break;
                     case EventOperation.GET_BOOKING_SCHEDULE:
                         System.out.print("Enter your client ID : ");
@@ -78,6 +82,7 @@ public class ManagerClient {
                         requestBody = from + "," + to + "," + EventOperation.GET_BOOKING_SCHEDULE + "," + customerId;
                         response = iEventManagerCommunication.performOperation(requestBody);
                         System.err.println(response);
+                        Logger.writeLogToFile("client", managerID, requestBody, response, Constants.TIME_STAMP);
                         break;
                 }
             } catch (RemoteException e) {
