@@ -52,7 +52,20 @@ public class EventManagerCommunicationMontreal extends UnicastRemoteObject imple
         String[] unWrappingRequest = userRequest.split(",", 4);
         switch (unWrappingRequest[Constants.TO_INDEX]) {
             case "montreal":
-                return eventManagerBusinessMontreal.performOperation(userRequest);
+                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.GET_BOOKING_SCHEDULE)) {
+                    //fetch list of event on toronto server
+
+
+                    String torontoEvents = montrealUDPClient.sendMessageToTorontoUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
+
+                    //fetch list of event on ottawa server
+                    String ottawaEvents = montrealUDPClient.sendMessageToOttawaUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
+                    String montrealEvents = eventManagerBusinessMontreal.performOperation(userRequest);
+                    return String.join("\n", torontoEvents, ottawaEvents, montrealEvents);
+                } else {
+                    return eventManagerBusinessMontreal.performOperation(userRequest);
+                }
+
             case "toronto":
                 if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)){
                     //fetch list of event on toronto server

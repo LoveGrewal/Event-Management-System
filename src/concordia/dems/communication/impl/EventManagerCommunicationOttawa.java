@@ -56,7 +56,7 @@ public class EventManagerCommunicationOttawa extends UnicastRemoteObject impleme
             case "montreal":
                 //System.err.println("Montreal UDP Request need to initiated");
                 // call montreal udp here
-                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)){
+                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)) {
                     //fetch list of event on toronto server
                     unWrappingRequest[Constants.ACTION_INDEX] = EventOperation.GET_BOOKING_SCHEDULE;
 
@@ -64,20 +64,19 @@ public class EventManagerCommunicationOttawa extends UnicastRemoteObject impleme
 
                     //fetch list of event on ottawa server
                     String montrealEvents = ottawaUDPClient.sendMessageToMontrealUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
-                    if (checkIfEqualMoreThanThree(torontoEvents, montrealEvents, unWrappingRequest[Constants.INFORMATION_INDEX])){
+                    if (checkIfEqualMoreThanThree(torontoEvents, montrealEvents, unWrappingRequest[Constants.INFORMATION_INDEX])) {
                         return "Limit Exceeded";
-                    }else{
+                    } else {
                         return ottawaUDPClient.sendMessageToMontrealUDP(userRequest);
                     }
-                }
-                else{
+                } else {
                     return ottawaUDPClient.sendMessageToMontrealUDP(userRequest);
                 }
 
             case "toronto":
                 //System.err.println("Toronto UDP Request need to initiated");
                 // call toronto UDP here
-                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)){
+                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)) {
                     //fetch list of event on toronto server
                     unWrappingRequest[Constants.ACTION_INDEX] = EventOperation.GET_BOOKING_SCHEDULE;
 
@@ -85,39 +84,51 @@ public class EventManagerCommunicationOttawa extends UnicastRemoteObject impleme
 
                     //fetch list of event on ottawa server
                     String montrealEvents = ottawaUDPClient.sendMessageToMontrealUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
-                    if (checkIfEqualMoreThanThree(torontoEvents, montrealEvents, unWrappingRequest[Constants.INFORMATION_INDEX])){
+                    if (checkIfEqualMoreThanThree(torontoEvents, montrealEvents, unWrappingRequest[Constants.INFORMATION_INDEX])) {
                         return "Limit Exceeded";
-                    }else{
+                    } else {
                         return ottawaUDPClient.sendMessageToTorontoUDP(userRequest);
                     }
-                }
-                else{
+                } else {
                     return ottawaUDPClient.sendMessageToTorontoUDP(userRequest);
                 }
 
             case "ottawa":
-                return eventManagerBusinessOttawa.performOperation(userRequest);
+                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.GET_BOOKING_SCHEDULE)) {
+                    //fetch list of event on toronto server
+
+
+                    String torontoEvents = ottawaUDPClient.sendMessageToTorontoUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
+
+                    //fetch list of event on ottawa server
+                    String montrealEvents = ottawaUDPClient.sendMessageToMontrealUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
+                    String ottawaEvents = eventManagerBusinessOttawa.performOperation(userRequest);
+                    return String.join("\n", torontoEvents, ottawaEvents, montrealEvents);
+                } else {
+                    return eventManagerBusinessOttawa.performOperation(userRequest);
+                }
+
         }
         return "";
     }
 
-    private boolean checkIfEqualMoreThanThree(String events1,String events2, String inf){
+    private boolean checkIfEqualMoreThanThree(String events1, String events2, String inf) {
         //get month of current booking
         String currMonth = inf.split(",")[1].substring(6, 8).trim();
         int eventCount = 0;
 
         String[] events = events1.split("\n");
-        for(String s : events){
-            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())){
+        for (String s : events) {
+            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())) {
                 eventCount++;
             }
         }
         events = events2.split("\n");
-        for(String s : events){
-            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())){
+        for (String s : events) {
+            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())) {
                 eventCount++;
             }
         }
-        return  (eventCount>=3);
+        return (eventCount >= 3);
     }
 }
