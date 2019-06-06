@@ -4,6 +4,7 @@ import concordia.dems.business.IEventManagerBusiness;
 import concordia.dems.business.impl.EventManagerBusinessMontrealImpl;
 import concordia.dems.communication.IEventManagerCommunication;
 import concordia.dems.helpers.Constants;
+import concordia.dems.helpers.EventOperation;
 import concordia.dems.servers.MontrealUDPClient;
 
 import java.rmi.AlreadyBoundException;
@@ -11,6 +12,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
 
 public class EventManagerCommunicationMontreal extends UnicastRemoteObject implements IEventManagerCommunication {
 
@@ -52,10 +54,62 @@ public class EventManagerCommunicationMontreal extends UnicastRemoteObject imple
             case "montreal":
                 return eventManagerBusinessMontreal.performOperation(userRequest);
             case "toronto":
-                return montrealUDPClient.sendMessageToTorontoUDP(userRequest);
+                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)){
+                    //fetch list of event on toronto server
+                    unWrappingRequest[Constants.ACTION_INDEX] = EventOperation.GET_BOOKING_SCHEDULE;
+
+                    String torontoEvents = montrealUDPClient.sendMessageToTorontoUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
+
+                    //fetch list of event on ottawa server
+                    String ottawaEvents = montrealUDPClient.sendMessageToOttawaUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
+                    if (checkIfEqualMoreThanThree(torontoEvents, ottawaEvents, unWrappingRequest[Constants.INFORMATION_INDEX])){
+                        return "Limit Exceeded";
+                    }else{
+                        return montrealUDPClient.sendMessageToTorontoUDP(userRequest);
+                    }
+                }
+                else{
+                    return montrealUDPClient.sendMessageToTorontoUDP(userRequest);
+                }
             case "ottawa":
-                return montrealUDPClient.sendMessageToOttawaUDP(userRequest);
+                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)){
+                    //fetch list of event on toronto server
+                    unWrappingRequest[Constants.ACTION_INDEX] = EventOperation.GET_BOOKING_SCHEDULE;
+
+                    String torontoEvents = montrealUDPClient.sendMessageToTorontoUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
+
+                    //fetch list of event on ottawa server
+                    String ottawaEvents = montrealUDPClient.sendMessageToOttawaUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
+                    if (checkIfEqualMoreThanThree(torontoEvents, ottawaEvents, unWrappingRequest[Constants.INFORMATION_INDEX])){
+                        return "Limit Exceeded";
+                    }else{
+                        return montrealUDPClient.sendMessageToOttawaUDP(userRequest);
+                    }
+                }
+                else{
+                    return montrealUDPClient.sendMessageToOttawaUDP(userRequest);
+                }
+
         }
         return "";
+    }
+    private boolean checkIfEqualMoreThanThree(String events1,String events2, String inf){
+        //get month of current booking
+        String currMonth = inf.split(",")[1].substring(6, 8).trim();
+        int eventCount = 0;
+
+        String[] events = events1.split("\n");
+        for(String s : events){
+            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())){
+                eventCount++;
+            }
+        }
+        events = events2.split("\n");
+        for(String s : events){
+            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())){
+                eventCount++;
+            }
+        }
+        return  (eventCount>=3);
     }
 }

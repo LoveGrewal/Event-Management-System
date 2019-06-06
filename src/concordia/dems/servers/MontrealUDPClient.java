@@ -55,7 +55,7 @@ public class MontrealUDPClient {
             DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 
             aSocket.receive(reply);
-            message = reply.getData().toString();
+            message = new String( reply.getData());
             /*System.out.println("Reply received from the server with port number " + serverPort + " is: "
                     + new String(reply.getData()));*/
         } catch (SocketException e) {
