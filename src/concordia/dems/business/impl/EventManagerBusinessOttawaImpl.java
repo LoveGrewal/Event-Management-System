@@ -89,8 +89,11 @@ public class EventManagerBusinessOttawaImpl implements IEventManagerBusiness {
                 else
                     return "No such event ID found / Capacity is full";
             case EventOperation.CANCEL_EVENT:
-                this.cancelEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
-                break;
+                boolean cancelStatus = this.cancelEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
+                if (cancelStatus)
+                    return "You have been removed from the requested event";
+                else
+                    return "Cancellation process failed";
             case EventOperation.GET_BOOKING_SCHEDULE:
                 List<Event> bookingSchedule = this.getBookingSchedule(unWrappingRequest[Constants.INFORMATION_INDEX]);
                 StringBuilder bookingInformation = new StringBuilder();

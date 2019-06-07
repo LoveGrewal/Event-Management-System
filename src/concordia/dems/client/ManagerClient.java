@@ -45,13 +45,13 @@ public class ManagerClient {
                         requestBody = from + "," + eventInformation;
                         response = iEventManagerCommunication.performOperation(requestBody);
                         Logger.writeLogToFile("client", managerID, requestBody, response, Constants.TIME_STAMP);
-                        System.err.println(response);
+                        System.out.println(response);
                         break;
                     case EventOperation.REMOVE_EVENT:
                         requestBody = from + "," + removeEventInformation();
                         response = iEventManagerCommunication.performOperation(requestBody);
                         Logger.writeLogToFile("client", managerID, requestBody, response, Constants.TIME_STAMP);
-                        System.err.println(response);
+                        System.out.println(response);
                         break;
                     case EventOperation.LIST_AVAILABILITY:
                         System.err.print("Enter event type: ");
@@ -60,19 +60,19 @@ public class ManagerClient {
                         requestBody = from + "," + from + "," + EventOperation.LIST_AVAILABILITY + "," + eventInfo;
                         String listEventResponse = iEventManagerCommunication.performOperation(requestBody);
                         Logger.writeLogToFile("client", managerID, requestBody, listEventResponse, Constants.TIME_STAMP);
-                        System.err.println(listEventResponse);
+                        System.out.println(listEventResponse);
                         break;
                     // Manager can perform operation for client
                     case EventOperation.BOOK_EVENT:
                         requestBody = from + "," + bookEventInformation();
                         response = iEventManagerCommunication.performOperation(requestBody);
-                        System.err.println(response);
+                        System.out.println(response);
                         Logger.writeLogToFile("client", managerID, requestBody, response, Constants.TIME_STAMP);
                         break;
                     case EventOperation.CANCEL_EVENT:
                         requestBody = from + "," + cancelEventInformation();
                         response = iEventManagerCommunication.performOperation(requestBody);
-                        System.err.println(response);
+                        System.out.println(response);
                         Logger.writeLogToFile("client", managerID, requestBody, response, Constants.TIME_STAMP);
                         break;
                     case EventOperation.GET_BOOKING_SCHEDULE:
@@ -81,7 +81,7 @@ public class ManagerClient {
                         String to = Helper.getServerNameFromID(customerId);
                         requestBody = from + "," + to + "," + EventOperation.GET_BOOKING_SCHEDULE + "," + customerId;
                         response = iEventManagerCommunication.performOperation(requestBody);
-                        System.err.println(response);
+                        System.out.println(response);
                         Logger.writeLogToFile("client", managerID, requestBody, response, Constants.TIME_STAMP);
                         break;
                 }
@@ -93,7 +93,7 @@ public class ManagerClient {
 
     private void showManagerOperations() {
         AtomicInteger idCounter = new AtomicInteger(1);
-        System.err.println("Select operation id from below option : ");
+        System.out.println("Select operation id from below option : ");
         ManagerAndClientInfo.managerOperations.forEach(managerOperation -> System.out.println(idCounter.getAndIncrement() + " " + managerOperation));
     }
 
@@ -111,7 +111,7 @@ public class ManagerClient {
         System.err.print("Enter event date (ddmmyy): ");
         String eventDate = scanner.next().toUpperCase();
         String eventID = eventCity + "" + eventBatch + "" + eventDate;
-        System.err.println("Enter event Type from below list : ");
+        System.out.println("Enter event Type from below list : ");
         Arrays.stream(EventType.values()).forEach(System.out::println);
         String eventType = scanner.next();
         System.err.print("Enter event booking capacity : ");
