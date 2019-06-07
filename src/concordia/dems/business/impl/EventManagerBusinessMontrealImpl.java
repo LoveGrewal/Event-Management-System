@@ -91,7 +91,7 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
             case EventOperation.CANCEL_EVENT:
                 boolean cancelStatus = this.cancelEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
                 if (cancelStatus)
-                    return "You have been removed from the request event";
+                    return "You have been removed from the requested event";
                 else
                     return "Cancellation process failed";
             case EventOperation.GET_BOOKING_SCHEDULE:
