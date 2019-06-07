@@ -37,8 +37,7 @@ public class Logger {
         File file = new File(filePath);
         file.setWritable(true);
         try (FileWriter fileWriter = new FileWriter(file, true)) {
-            fileWriter.write(System.lineSeparator());
-            fileWriter.append(message);
+            fileWriter.append(message).append("\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
