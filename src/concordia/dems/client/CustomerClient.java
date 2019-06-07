@@ -42,24 +42,25 @@ public class CustomerClient {
                     case EventOperation.BOOK_EVENT:
                         requestBody = from + "," + this.bookEventInformation(customerId);
                         String bookEventResponse = communication.performOperation(requestBody);
-                        System.err.println(bookEventResponse);
+                        System.out.println(bookEventResponse);
                         Logger.writeLogToFile("client", customerId, requestBody, bookEventResponse, Constants.TIME_STAMP);
                         break;
                     case EventOperation.CANCEL_EVENT:
                         requestBody = from + "," + this.cancelEventInformation(customerId);
                         String cancelEventResponse = communication.performOperation(requestBody);
-                        System.err.println(cancelEventResponse);
+                        System.out.println(cancelEventResponse);
                         Logger.writeLogToFile("client", customerId, requestBody, cancelEventResponse, Constants.TIME_STAMP);
                         break;
                     case EventOperation.GET_BOOKING_SCHEDULE:
                         requestBody = from + "," + from + "," + EventOperation.GET_BOOKING_SCHEDULE + "," + customerId;
                         String bookingScheduleResponse = communication.performOperation(requestBody);
+                        System.out.println(bookingScheduleResponse);
                         Logger.writeLogToFile("client", customerId, requestBody, bookingScheduleResponse, Constants.TIME_STAMP);
                         break;
                 }
             } catch (RemoteException e) {
                 e.printStackTrace();
-                System.err.println(e.getMessage());
+                System.out.println(e.getMessage());
             }
         }
 
