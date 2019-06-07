@@ -146,7 +146,7 @@ public class EventManagerDatabaseMontrealImpl implements IEventManagerDatabase {
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry) it.next();
                 e = (Event) pair.getValue();
-                if (e.findIfCustomerPresent(customerID)) {
+                if (e.getEventId().equalsIgnoreCase(eventID)) {
                     eventToCancel = e;
                     found = true;
                     break;
@@ -156,7 +156,7 @@ public class EventManagerDatabaseMontrealImpl implements IEventManagerDatabase {
                 break;
             }
         }
-        if (eventToCancel != null) {
+        if (eventToCancel != null && eventToCancel.getCustomers().contains(customerID)) {
             eventToCancel.setRemainingCapacity(eventToCancel.getRemainingCapacity() + 1);
             eventToCancel.removeCustomer(customerID);
             Logger.writeLogToFile("server", "montrealServer", "cancelEvent", "event cancel for " + customerID + " in " + eventID, Constants.TIME_STAMP);
