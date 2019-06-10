@@ -33,4 +33,8 @@ public class Constants {
     public static int TO_INDEX = 1;
     public static int ACTION_INDEX = 2;
     public static int INFORMATION_INDEX = 3;
+
+    public static final int TORONTOSERVERPORT = 8889;
+    public static final int OTTAWASERVERPORT = 8890;
+    public static final int MONTREALSERVERPORT = 8888;
 }

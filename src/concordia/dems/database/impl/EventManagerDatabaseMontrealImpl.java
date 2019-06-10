@@ -19,15 +19,24 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class EventManagerDatabaseMontrealImpl implements IEventManagerDatabase {
 
-    private static Map<EventType, Map<String, Event>> eventData = new ConcurrentHashMap<>();
+    private static volatile Map<EventType, Map<String, Event>> eventData = new ConcurrentHashMap<>();
+    private static volatile EventManagerDatabaseMontrealImpl eventManagerDatabaseMontreal;
 
     static {
-        Map<String, Event> temp = new ConcurrentHashMap<>();
-        temp.put("MTLA140619", new Event("MTLA140619", EventType.SEMINAR, EventBatch.AFTERNOON, 35));
-        temp.put("MTLM150619", new Event("MTLM150619", EventType.SEMINAR, EventBatch.MORNING, 35));
         eventData.put(EventType.CONFERENCE, new ConcurrentHashMap<>());
-        eventData.put(EventType.SEMINAR, temp);
+        eventData.put(EventType.SEMINAR, new ConcurrentHashMap<>());
         eventData.put(EventType.TRADESHOW, new ConcurrentHashMap<>());
+    }
+
+    public static EventManagerDatabaseMontrealImpl getInstance(){
+        if (EventManagerDatabaseMontrealImpl.eventManagerDatabaseMontreal == null){
+            synchronized (EventManagerDatabaseMontrealImpl.class){
+                if (EventManagerDatabaseMontrealImpl.eventManagerDatabaseMontreal == null){
+                    EventManagerDatabaseMontrealImpl.eventManagerDatabaseMontreal = new EventManagerDatabaseMontrealImpl();
+                }
+            }
+        }
+        return EventManagerDatabaseMontrealImpl.eventManagerDatabaseMontreal;
     }
 
     /**
