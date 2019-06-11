@@ -10,11 +10,17 @@ import java.util.List;
  * @version 1.0.0
  */
 public interface IEventManagerDatabase {
-    Boolean addEvent (Event event);
-    Boolean removeEvent (Event event);
-    List<Event> listEventAvailability (EventType eventType);
-    Boolean bookEvent (String customerID,String eventID,EventType eventType);
-    List<Event> getBookingSchedule (String customerID);
-    Boolean cancelEvent (String customerID,String eventID);
+    String addEvent(Event event);
+
+    String removeEvent(Event event);
+
+    List<Event> listEventAvailability(EventType eventType);
+
+    String bookEvent(String customerID, String eventID, EventType eventType);
+
+    List<Event> getBookingSchedule(String customerID);
+
+    String cancelEvent(String customerID, String eventID);
+
     int getRemainingCapacityOfEvent(String eventID);
 }
