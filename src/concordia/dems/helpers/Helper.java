@@ -96,4 +96,24 @@ public class Helper {
         }
         return server;
     }
+
+    public static boolean checkIfEqualMoreThanThree(String events1, String events2, String inf) {
+        //get month of current booking
+        String currMonth = inf.split(",")[1].substring(6, 8).trim();
+        int eventCount = 0;
+
+        String[] events = events1.split("\n");
+        for (String s : events) {
+            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())) {
+                eventCount++;
+            }
+        }
+        events = events2.split("\n");
+        for (String s : events) {
+            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())) {
+                eventCount++;
+            }
+        }
+        return eventCount >= 3;
+    }
 }
