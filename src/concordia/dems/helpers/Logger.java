@@ -33,7 +33,7 @@ public class Logger {
         init();
         String filePath = serverOrClient.equalsIgnoreCase("server") ? "logs/servers/" : "logs/clients/";
         filePath += customerID.toLowerCase() + ".txt";
-        String message = request + " | " + response + " | " + timeStamp;
+        String message = request.trim() + " | " + response.trim() + " | " + timeStamp.trim();
         File file = new File(filePath);
         file.setWritable(true);
         try (FileWriter fileWriter = new FileWriter(file, true)) {
