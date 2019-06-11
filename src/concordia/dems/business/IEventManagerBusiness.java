@@ -19,7 +19,7 @@ public interface IEventManagerBusiness {
      * @return boolean Success or failure
      */
     //addEvent : eventID, eventType, bookingCapacity
-    Boolean addEvent(String addEventInfo);
+    String addEvent(String addEventInfo);
 
     /**
      * Remove Event function: Accessible by Event Manager
@@ -28,7 +28,7 @@ public interface IEventManagerBusiness {
      * @return boolean Success or failure
      */
     //removeEvent : eventId,eventType
-    Boolean removeEvent(String removeEventInfo);
+    String removeEvent(String removeEventInfo);
 
     /**
      * This function returns how much space is available in requested eventType
@@ -44,7 +44,7 @@ public interface IEventManagerBusiness {
      * @return
      */
     //bookEvent : String eventBookingInfo [customerId,eventId,eventType]
-    Boolean bookEvent(String eventBookingInfo);
+    String bookEvent(String eventBookingInfo);
 
     /**
      * This function returns an booking schedule of requested customer
@@ -60,7 +60,7 @@ public interface IEventManagerBusiness {
      * @return boolean Success or Failure
      */
     //cancelEvent: customerId,eventId
-    Boolean cancelEvent(String cancelEventInfo);
+    String cancelEvent(String cancelEventInfo);
 
     String performOperation(String userRequest);
 }

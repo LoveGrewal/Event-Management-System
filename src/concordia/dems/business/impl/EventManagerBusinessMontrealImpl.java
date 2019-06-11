@@ -6,6 +6,7 @@ import concordia.dems.database.impl.EventManagerDatabaseMontrealImpl;
 import concordia.dems.helpers.Constants;
 import concordia.dems.helpers.EventOperation;
 import concordia.dems.helpers.Helper;
+import concordia.dems.helpers.Logger;
 import concordia.dems.model.Event;
 import concordia.dems.model.enumeration.EventType;
 
@@ -27,7 +28,7 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
     */
 
     @Override
-    public synchronized Boolean addEvent(String addEventInfo) {
+    public synchronized String addEvent(String addEventInfo) {
         String[] unWrappingRequest = addEventInfo.split(",");
         //0 = EventID , 1 = Event Type , 2 = Event Batch , 3 = Booking Capacity
         Event event = new Event(unWrappingRequest[0].trim(),
@@ -38,7 +39,7 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
     }
 
     @Override
-    public synchronized Boolean removeEvent(String removeEventInfo) {
+    public synchronized String removeEvent(String removeEventInfo) {
         String[] unWrappingRequest = removeEventInfo.split(",");
         Event e = new Event(unWrappingRequest[0], Helper.getEventTypeEnumObject(unWrappingRequest[1].trim()));
         return iEventManagerDatabase.removeEvent(e);
@@ -55,7 +56,7 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
     */
 
     @Override
-    public synchronized Boolean bookEvent(String eventBookingInfo) {
+    public synchronized String bookEvent(String eventBookingInfo) {
         String[] unWrappingRequest = eventBookingInfo.split(",");
         String customerID = unWrappingRequest[0].trim();
         String eventID = unWrappingRequest[1].trim();
@@ -70,7 +71,7 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
     }
 
     @Override
-    public synchronized Boolean cancelEvent(String cancelEventInfo) {
+    public synchronized String cancelEvent(String cancelEventInfo) {
         String[] unWrappingRequest = cancelEventInfo.split(",");
         String customerID = unWrappingRequest[0].trim();
         String eventID = unWrappingRequest[1].trim();
@@ -83,17 +84,9 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
         String[] unWrappingRequest = userRequest.split(",", 4);
         switch (unWrappingRequest[Constants.ACTION_INDEX]) {
             case EventOperation.BOOK_EVENT:
-                boolean status = this.bookEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
-                if (status)
-                    return "You are registered to the requested event";
-                else
-                    return "No such event ID found / Capacity is full";
+                return this.bookEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
             case EventOperation.CANCEL_EVENT:
-                boolean cancelStatus = this.cancelEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
-                if (cancelStatus)
-                    return "You have been removed from the requested event";
-                else
-                    return "Cancellation process failed";
+                return this.cancelEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
             case EventOperation.GET_BOOKING_SCHEDULE:
                 List<Event> bookingSchedule = this.getBookingSchedule(unWrappingRequest[Constants.INFORMATION_INDEX]);
                 StringBuilder bookingInformation = new StringBuilder();
@@ -102,17 +95,17 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
                 }
                 return bookingInformation.toString();
             case EventOperation.ADD_EVENT:
-                boolean saveStatus = this.addEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
-                if (saveStatus)
-                    return "Your event is successfully added";
-                else
-                    return "Your event is successfully updated";
+                if (isManagerAllowToPerformEventOperation(unWrappingRequest)) {
+                    Logger.writeLogToFile("server", "non-authorized", unWrappingRequest[Constants.INFORMATION_INDEX], "You are not authorized to add an event", Constants.TIME_STAMP);
+                    return "You are not authorized to add an event";
+                }
+                return this.addEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
             case EventOperation.REMOVE_EVENT:
-                boolean removeEventStatus = this.removeEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
-                if (removeEventStatus)
-                    return "Event was removed successfully";
-                else
-                    return "Event was not removed successfully";
+                if (isManagerAllowToPerformEventOperation(unWrappingRequest)) {
+                    Logger.writeLogToFile("server", "non-authorized", unWrappingRequest[Constants.INFORMATION_INDEX], "You are not authorized to remove an event", Constants.TIME_STAMP);
+                    return "You are not authorized to remove an event";
+                }
+                return this.removeEvent(unWrappingRequest[Constants.INFORMATION_INDEX]);
             case EventOperation.LIST_AVAILABILITY:
                 List<Event> eventList = this.listEventAvailability(unWrappingRequest[Constants.INFORMATION_INDEX]);
                 StringBuilder eventAvailabilityInformation = new StringBuilder();
@@ -124,5 +117,9 @@ public class EventManagerBusinessMontrealImpl implements IEventManagerBusiness {
                 break;
         }
         return "";
+    }
+
+    private boolean isManagerAllowToPerformEventOperation(String[] unwrappingRequest) {
+        return !unwrappingRequest[Constants.FROM_INDEX].equals(unwrappingRequest[Constants.TO_INDEX]);
     }
 }
