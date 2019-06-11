@@ -20,7 +20,7 @@ public class EventManagerBusinessOttawaImpl implements IEventManagerBusiness {
     private static IEventManagerDatabase iEventManagerDatabase;
 
     public EventManagerBusinessOttawaImpl() {
-        iEventManagerDatabase = new EventManagerDatabaseOttawaImpl();
+        iEventManagerDatabase = EventManagerDatabaseOttawaImpl.getInstance();
     }
     /*
        Manager Related Functions

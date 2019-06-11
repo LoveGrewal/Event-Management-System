@@ -20,7 +20,7 @@ public class EventManagerBusinessTorontoImpl implements IEventManagerBusiness {
     private static IEventManagerDatabase iEventManagerDatabase;
 
     public EventManagerBusinessTorontoImpl() {
-        iEventManagerDatabase = new EventManagerDatabaseTorontoImpl();
+        iEventManagerDatabase = EventManagerDatabaseTorontoImpl.getInstance();
     }
 
     /*
