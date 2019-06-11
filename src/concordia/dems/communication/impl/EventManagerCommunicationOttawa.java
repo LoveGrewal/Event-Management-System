@@ -1,10 +1,9 @@
 package concordia.dems.communication.impl;
 
-import concordia.dems.business.IEventManagerBusiness;
-import concordia.dems.business.impl.EventManagerBusinessOttawaImpl;
 import concordia.dems.communication.IEventManagerCommunication;
 import concordia.dems.helpers.Constants;
 import concordia.dems.helpers.EventOperation;
+import concordia.dems.helpers.Helper;
 import concordia.dems.servers.OttawaUDPClient;
 
 import java.rmi.AlreadyBoundException;
@@ -19,12 +18,10 @@ import java.rmi.server.UnicastRemoteObject;
  */
 public class EventManagerCommunicationOttawa extends UnicastRemoteObject implements IEventManagerCommunication {
 
-    private IEventManagerBusiness eventManagerBusinessOttawa;
     private OttawaUDPClient ottawaUDPClient;
 
     protected EventManagerCommunicationOttawa() throws RemoteException {
         super();
-        eventManagerBusinessOttawa = new EventManagerBusinessOttawaImpl();
         ottawaUDPClient = new OttawaUDPClient();
     }
 
@@ -52,88 +49,65 @@ public class EventManagerCommunicationOttawa extends UnicastRemoteObject impleme
             return "The request body is empty";
         }
         String[] unWrappingRequest = userRequest.split(",", 4);
+
+        // If request is for event availability then simply returns all events in server
+        if (unWrappingRequest[Constants.ACTION_INDEX].equals(EventOperation.LIST_AVAILABILITY)) {
+            return getEventAvailabilityFromAllServers(userRequest);
+        }
+
+        // For getting booking schedule of user , also call all servers service
+        if (unWrappingRequest[Constants.ACTION_INDEX].equals(EventOperation.GET_BOOKING_SCHEDULE)) {
+            return getBookingScheduleForClients(userRequest);
+        }
+
         switch (unWrappingRequest[Constants.TO_INDEX]) {
             case "montreal":
-                //System.err.println("Montreal UDP Request need to initiated");
-                // call montreal udp here
-                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)) {
-                    //fetch list of event on toronto server
+                if (unWrappingRequest[Constants.ACTION_INDEX].equals(EventOperation.BOOK_EVENT)) {
                     unWrappingRequest[Constants.ACTION_INDEX] = EventOperation.GET_BOOKING_SCHEDULE;
-
-                    String torontoEvents = ottawaUDPClient.sendMessageToTorontoUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
-
-                    //fetch list of event on ottawa server
-                    String montrealEvents = ottawaUDPClient.sendMessageToMontrealUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
-                    if (checkIfEqualMoreThanThree(torontoEvents, montrealEvents, unWrappingRequest[Constants.INFORMATION_INDEX])) {
-                        return "Limit Exceeded";
-                    } else {
-                        return ottawaUDPClient.sendMessageToMontrealUDP(userRequest);
-                    }
-                } else {
+                    boolean isNotEligible = isCustomerEligibleForBookingEvent(unWrappingRequest);
+                    if (isNotEligible)
+                        return "Limit Exceeded! You have been already registered for 3 events for a specific month";
                     return ottawaUDPClient.sendMessageToMontrealUDP(userRequest);
-                }
-
+                } else
+                    return ottawaUDPClient.sendMessageToMontrealUDP(userRequest);
             case "toronto":
-                //System.err.println("Toronto UDP Request need to initiated");
-                // call toronto UDP here
-                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.BOOK_EVENT)) {
-                    //fetch list of event on toronto server
+                if (unWrappingRequest[Constants.ACTION_INDEX].equals(EventOperation.BOOK_EVENT)) {
                     unWrappingRequest[Constants.ACTION_INDEX] = EventOperation.GET_BOOKING_SCHEDULE;
-
-                    String torontoEvents = ottawaUDPClient.sendMessageToTorontoUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
-
-                    //fetch list of event on ottawa server
-                    String montrealEvents = ottawaUDPClient.sendMessageToMontrealUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
-                    if (checkIfEqualMoreThanThree(torontoEvents, montrealEvents, unWrappingRequest[Constants.INFORMATION_INDEX])) {
-                        return "Limit Exceeded";
-                    } else {
-                        return ottawaUDPClient.sendMessageToTorontoUDP(userRequest);
-                    }
-                } else {
+                    boolean isNotEligible = isCustomerEligibleForBookingEvent(unWrappingRequest);
+                    if (isNotEligible)
+                        return "Limit Exceeded! You have been already registered for 3 events for a specific month";
                     return ottawaUDPClient.sendMessageToTorontoUDP(userRequest);
-                }
-
+                } else
+                    return ottawaUDPClient.sendMessageToTorontoUDP(userRequest);
             case "ottawa":
-                if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.GET_BOOKING_SCHEDULE)) {
-                    //fetch list of event on toronto server
-
-
-                    String torontoEvents = ottawaUDPClient.sendMessageToTorontoUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
-
-                    //fetch list of event on ottawa server
-                    String montrealEvents = ottawaUDPClient.sendMessageToMontrealUDP(String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]));
-                    String ottawaEvents = eventManagerBusinessOttawa.performOperation(userRequest);
-                    return String.join("\n", torontoEvents, ottawaEvents, montrealEvents);
-                } else if (unWrappingRequest[Constants.ACTION_INDEX].equalsIgnoreCase(EventOperation.LIST_AVAILABILITY)) {
-                    String torontoEvents = ottawaUDPClient.sendMessageToTorontoUDP(userRequest);
-                    String montrealEvents = ottawaUDPClient.sendMessageToMontrealUDP(userRequest);
-                    String ottawaEvents = eventManagerBusinessOttawa.performOperation(userRequest);
-                    return String.join("\n", torontoEvents, ottawaEvents, montrealEvents);
-                } else {
-                    return eventManagerBusinessOttawa.performOperation(userRequest);
-                }
+                return ottawaUDPClient.sendMessageToOttawaUDP(userRequest);
 
         }
         return "";
     }
 
-    private boolean checkIfEqualMoreThanThree(String events1, String events2, String inf) {
-        //get month of current booking
-        String currMonth = inf.split(",")[1].substring(6, 8).trim();
-        int eventCount = 0;
 
-        String[] events = events1.split("\n");
-        for (String s : events) {
-            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())) {
-                eventCount++;
-            }
-        }
-        events = events2.split("\n");
-        for (String s : events) {
-            if (currMonth.equalsIgnoreCase(s.split(" ")[0].substring(6, 8).trim())) {
-                eventCount++;
-            }
-        }
-        return (eventCount >= 3);
+    private String generateStringForUnwrappingRequest(String[] unWrappingRequest) {
+        return String.join(",", unWrappingRequest[0], unWrappingRequest[1], unWrappingRequest[2], unWrappingRequest[3]);
+    }
+
+    private String getEventAvailabilityFromAllServers(String userRequest) {
+        String torontoEvents = ottawaUDPClient.sendMessageToTorontoUDP(userRequest);
+        String ottawaEvents = ottawaUDPClient.sendMessageToOttawaUDP(userRequest);
+        String montrealEvents = ottawaUDPClient.sendMessageToMontrealUDP(userRequest);
+        return String.join("\n", torontoEvents, ottawaEvents, montrealEvents);
+    }
+
+    private String getBookingScheduleForClients(String userRequest) {
+        String torontoEvents = ottawaUDPClient.sendMessageToTorontoUDP(userRequest);
+        String ottawaEvents = ottawaUDPClient.sendMessageToOttawaUDP(userRequest);
+        String montrealEvents = ottawaUDPClient.sendMessageToMontrealUDP(userRequest);
+        return String.join("\n", torontoEvents, ottawaEvents, montrealEvents);
+    }
+
+    private boolean isCustomerEligibleForBookingEvent(String[] unWrappingRequest) {
+        String torontoEvents = ottawaUDPClient.sendMessageToTorontoUDP(generateStringForUnwrappingRequest(unWrappingRequest));
+        String montrealEvents = ottawaUDPClient.sendMessageToMontrealUDP(generateStringForUnwrappingRequest(unWrappingRequest));
+        return Helper.checkIfEqualMoreThanThree(torontoEvents, montrealEvents, unWrappingRequest[Constants.INFORMATION_INDEX]);
     }
 }
